@@ -1,1 +1,28 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verify you're human — Bexalink</title>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <style>
+    body { margin:0; background:#0B0A0C; color:#fff; font-family:-apple-system,Segoe UI,Inter,sans-serif;
+           display:flex; flex-direction:column; align-items:center; min-height:100vh; padding-top:60px; }
+    .card { border:1px solid #ffffff1a; border-radius:10px; padding:32px; width:100%; max-width:380px; text-align:center; }
+    .error { color:#F6A8E0; font-size:13px; margin-bottom:12px; }
+    button { margin-top:20px; padding:10px 24px; border:none; border-radius:6px; font-weight:600; cursor:pointer;
+             background:linear-gradient(90deg,#F7E9B9,#F6C9A0,#F6A8E0); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>One quick check</h2>
+    <p style="color:#ffffff88; font-size:14px;">This keeps Bexalink free of bots and spam.</p>
+    <% if (typeof error !== 'undefined') { %><div class="error"><%= error %></div><% } %>
+    <form method="POST" action="/<%= shortCode %>/verify">
+      <div class="cf-turnstile" data-sitekey="<%= turnstileSiteKey %>"></div>
+      <button type="submit">Continue</button>
+    </form>
+  </div>
+</body>
+</html>

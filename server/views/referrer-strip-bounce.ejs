@@ -1,1 +1,20 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Redirecting…</title>
+</head>
+<body>
+  <p>Redirecting you now…</p>
+  <script>
+    // Client-side hop avoids leaking Bexalink's URL as a referrer,
+    // and works even if the meta tag is ignored by an older browser.
+    window.location.replace(<%- JSON.stringify(destination) %>);
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0;url=<%= destination %>" />
+    <a href="<%= destination %>">Continue to your link</a>
+  </noscript>
+</body>
+</html>
