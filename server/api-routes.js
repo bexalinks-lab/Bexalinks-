@@ -163,4 +163,3 @@ router.post('/admin/payouts/:id/approve', requireAdmin, async (req, res) => {
 });
 
 module.exports = router;
-
