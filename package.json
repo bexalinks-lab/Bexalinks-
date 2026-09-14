@@ -1,1 +1,22 @@
-
+{
+  "name": "bexalink-server",
+  "version": "1.0.0",
+  "private": true,
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "nodemon server/app.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ejs": "^3.1.10",
+    "pg": "^8.12.0",
+    "redis": "^4.7.0",
+    "nanoid": "^3.3.7",
+    "dotenv": "^16.4.5",
+    "cookie-session": "^2.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
