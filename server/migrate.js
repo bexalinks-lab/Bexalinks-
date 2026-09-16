@@ -1,9 +1,4 @@
 // migrate.js
-// Runs database/schema.sql automatically on server startup if the `users`
-// table doesn't exist yet. This means you never need psql, a terminal, or a
-// SQL editor to set up the database — just deploy, and the app creates its
-// own tables on first boot.
-
 const fs = require('fs');
 const path = require('path');
 const db = require('./db');
@@ -18,17 +13,33 @@ async function runMigrations() {
 
     if (check.rows[0].exists) {
       console.log('[migrate] Schema already applied, skipping.');
-      return;
+    } else {
+      console.log('[migrate] No tables found — applying schema.sql...');
+      const schemaPath = path.join(__dirname, '..', 'database', 'schema.sql');
+      const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+      await db.query(schemaSql);
+      console.log('[migrate] Schema applied successfully.');
     }
-
-    console.log('[migrate] No tables found — applying schema.sql...');
-    const schemaPath = path.join(__dirname, '..', 'database', 'schema.sql');
-    const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-
-    await db.query(schemaSql);
-    console.log('[migrate] Schema applied successfully.');
   } catch (err) {
     console.error('[migrate] Failed to apply schema:', err.message);
+  }
+
+  try {
+    const { rows } = await db.query('SELECT id, email FROM users LIMIT 1');
+    if (rows.length === 0) {
+      const inserted = await db.query(
+        `INSERT INTO users (email, role) VALUES ('you@test.com', 'publisher') RETURNING id, email`
+      );
+      console.log('=================================================');
+      console.log('[migrate] Created default test user:');
+      console.log(`  email:   ${inserted.rows[0].email}`);
+      console.log(`  user id: ${inserted.rows[0].id}   <-- use this as x-user-id`);
+      console.log('=================================================');
+    } else {
+      console.log(`[migrate] Users already exist (e.g. ${rows[0].email}), skipping test user creation.`);
+    }
+  } catch (err) {
+    console.error('[migrate] Could not check/create default test user:', err.message);
   }
 }
 
