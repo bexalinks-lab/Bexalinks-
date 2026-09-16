@@ -6,8 +6,10 @@
 const { createClient } = require('redis');
 
 const redis = createClient({ url: process.env.REDIS_URL || 'redis://localhost:6379' });
-redis.on('error', (err) => console.error('[redis] connection error', err));
-redis.connect();
+redis.on('error', (err) => console.error('[redis] connection error', err.message));
+redis.connect().catch((err) => {
+  console.error('[redis] initial connect failed — app will keep running, but caching/dedup will not work until this is fixed:', err.message);
+});
 
 const LINK_CACHE_TTL_SECONDS = 300;       // link metadata cache
 const UNIQUE_VIEW_WINDOW_SECONDS = 86400; // 24h dedup window per IP+link
