@@ -14,6 +14,10 @@ app.set('trust proxy', true);
 
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.status(200).send('Bexalink is running ✅');
+});
+
 app.use('/api', apiRoutes);
 app.use('/', redirectEngine);
 
