@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Link2, Wallet, Users, TrendingUp, Copy, Settings, LogOut } from 'lucide-react';
+import { LOGO_DATA_URI } from './logo-data';
 
 const BRAND_GRADIENT = 'bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500';
 
@@ -91,7 +92,7 @@ function Sidebar({ active }) {
       <div className="glass rounded-3xl p-4 flex sm:flex-col gap-1 sm:gap-2 h-full overflow-x-auto sm:overflow-visible">
         <div className="mb-2 sm:mb-6 px-2 py-1 hidden sm:block">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Bexalink" className="h-6 w-auto object-contain" />
+          <img src={LOGO_DATA_URI} alt="Bexalink" className="h-6 w-auto object-contain" />
         </div>
         {items.map(({ key, label, icon: Icon, gradient }) => (
           <a key={key} href={`/dashboard/${key}`}
