@@ -1,3 +1,4 @@
+'use client';
 // Dashboard.jsx
 // Publisher dashboard for Bexalink — Next.js + Tailwind.
 // Design language: near-black charcoal surface, hairline dividers instead of
