@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,440;0,9..144,600;1,9..144,500&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root {
+  --paper: #F4F6F0;
+  --surface: #FFFFFF;
+  --ink: #16241C;
+  --ink-soft: rgba(22, 36, 28, 0.62);
+  --ink-faint: rgba(22, 36, 28, 0.38);
+  --line: rgba(22, 36, 28, 0.13);
+  --green: #1F7A4D;
+  --green-deep: #123D27;
+  --gold: #A97C25;
+}
+
 html, body {
-  background: #0B0A0C;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.font-display {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+.font-body {
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-ledger {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
 }
