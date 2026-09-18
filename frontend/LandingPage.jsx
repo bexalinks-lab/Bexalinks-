@@ -28,15 +28,23 @@ function CtaButton({ children, className = '', ...props }) {
       className={`relative overflow-hidden ${CTA_GRADIENT} text-white font-body font-semibold ${className}`}
     >
       <span className="glass-shine" style={{ width: '45%', height: '35%' }} />
-      <span className="relative z-10 flex items-center justify-center gap-2">{children}</span>
+      <span className="relative z-10 flex items-center justify-center gap-2 whitespace-nowrap">{children}</span>
     </Comp>
   );
 }
 
-function Wordmark({ className = 'h-8' }) {
-  return (
+function Wordmark({ className = 'h-8', dark = false }) {
+  const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={LOGO_DATA_URI} alt="Bexalink" className={`${className} w-auto object-contain`} />
+  );
+  if (!dark) return img;
+  // The logo's gradient text was designed for a dark backdrop, so give it
+  // a small dark chip of its own wherever it sits on the light glass UI.
+  return (
+    <span className="bg-[#0B0A12] rounded-xl px-3 py-1.5 flex items-center shrink-0">
+      {img}
+    </span>
   );
 }
 
@@ -79,14 +87,14 @@ function IconBadge({ icon: Icon, gradient, size = 44 }) {
 function Nav() {
   return (
     <header className="flex items-center justify-between px-6 sm:px-10 py-5 max-w-5xl mx-auto">
-      <div className="glass rounded-full pl-5 pr-2 py-2 flex items-center gap-8 w-full sm:w-auto justify-between">
-        <Wordmark className="h-7" />
+      <div className="glass rounded-full pl-2 pr-2 py-2 flex items-center gap-3 sm:gap-8 w-full sm:w-auto justify-between">
+        <Wordmark className="h-6 sm:h-7" dark />
         <nav className="hidden md:flex items-center gap-6 text-sm font-body font-medium text-[var(--ink-soft)]">
           <a href="#how-it-works" className="hover:text-[var(--ink)] transition-colors">How it works</a>
           <a href="#rates" className="hover:text-[var(--ink)] transition-colors">Rates</a>
           <a href="#payouts" className="hover:text-[var(--ink)] transition-colors">Payouts</a>
         </nav>
-        <CtaButton href="/signup" className="px-5 py-2 rounded-full text-sm">
+        <CtaButton href="/signup" className="px-4 py-2 sm:px-5 rounded-full text-xs sm:text-sm whitespace-nowrap shrink-0">
           Get started
         </CtaButton>
       </div>
@@ -161,21 +169,21 @@ function WidgetStat({ label, value, sublabel, gradient }) {
 }
 
 // Big glossy 3D icon badges scattered behind the headline — link/money
-// themed, positioned so they peek from around the text rather than sit on
-// top of it (kept behind via -z-10 and clipped to this section only).
+// themed, kept behind the text (-z-10) so they peek through the gaps
+// around the bold letters rather than sit on top of them.
 function HeroIcons() {
   const icons = [
-    { Icon: Link2, gradient: 'from-indigo-400 to-violet-600', style: { top: '-6%', right: '4%' }, size: 64, rotate: -12, className: 'hidden sm:flex' },
-    { Icon: Zap, gradient: 'from-amber-300 to-orange-500', style: { top: '2%', right: '2%' }, size: 40, rotate: 14, className: 'flex' },
-    { Icon: TrendingUp, gradient: 'from-emerald-300 to-teal-500', style: { top: '56%', right: '1%' }, size: 50, rotate: 8, className: 'hidden sm:flex' },
-    { Icon: Wallet, gradient: 'from-pink-400 to-rose-500', style: { bottom: '4%', right: '4%' }, size: 42, rotate: -10, className: 'flex' },
+    { Icon: Link2, gradient: 'from-indigo-400 to-violet-600', style: { top: '-4%', right: '2%' }, size: 68, rotate: -14 },
+    { Icon: Zap, gradient: 'from-amber-300 to-orange-500', style: { top: '20%', right: '20%' }, size: 46, rotate: 16 },
+    { Icon: TrendingUp, gradient: 'from-emerald-300 to-teal-500', style: { top: '38%', right: '4%' }, size: 58, rotate: 10 },
+    { Icon: Wallet, gradient: 'from-pink-400 to-rose-500', style: { top: '58%', right: '24%' }, size: 50, rotate: -12 },
   ];
   return (
     <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-      {icons.map(({ Icon, gradient, style, size, rotate, className }, i) => (
+      {icons.map(({ Icon, gradient, style, size, rotate }, i) => (
         <div
           key={i}
-          className={`absolute ${className} items-center justify-center rounded-3xl bg-gradient-to-br ${gradient} shadow-xl opacity-90`}
+          className={`absolute flex items-center justify-center rounded-3xl bg-gradient-to-br ${gradient} shadow-xl opacity-95`}
           style={{ ...style, width: size, height: size, transform: `rotate(${rotate}deg)` }}
         >
           <div className="glass-shine" />
@@ -423,7 +431,7 @@ function Footer() {
       <FooterIcons />
       <div className="px-6 sm:px-10 max-w-5xl mx-auto py-10 flex flex-col sm:flex-row justify-between gap-6 text-sm font-body text-[var(--ink-faint)]">
         <div>
-          <Wordmark className="h-6" />
+          <Wordmark className="h-5" dark />
           <p className="mt-2 max-w-xs">Shorten, share, and get paid from every link you send out.</p>
         </div>
         <div className="flex gap-10">
