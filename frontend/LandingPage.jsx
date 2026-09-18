@@ -1,3 +1,4 @@
+'use client';
 // LandingPage.jsx
 // Public marketing page for Bexalink — Next.js + Tailwind.
 // Shares Dashboard.jsx's design language: near-black charcoal surface,
