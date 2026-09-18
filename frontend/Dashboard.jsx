@@ -8,7 +8,7 @@
 import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Link2, Wallet, Users, TrendingUp, Copy, Settings, LogOut } from 'lucide-react';
-import { LOGO_DATA_URI } from './logo-data';
+import BrandLogo from './BrandLogo';
 
 const BRAND_GRADIENT = 'bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500';
 
@@ -38,8 +38,8 @@ function AccountCard({ summary }) {
           <div className="glass-shine" />
           <Wallet size={22} className="text-white relative z-10" />
         </div>
-        <span className="w-9 h-9 rounded-full glass flex items-center justify-center">
-          <Settings size={15} className="text-[var(--ink-soft)]" />
+        <span className="w-9 h-9 rounded-full bg-white border border-black/10 flex items-center justify-center">
+          <Settings size={15} className="text-black" />
         </span>
       </div>
 
@@ -68,11 +68,11 @@ function AccountCard({ summary }) {
       </div>
 
       <div className="flex items-center gap-2">
-        <button className={`flex-1 px-5 py-2.5 rounded-full text-sm font-body font-semibold text-white ${BRAND_GRADIENT} shadow-md`}>
+        <button className="btn btn-primary font-body flex-1 px-5 py-2.5 rounded-full text-sm">
           Request payout
         </button>
-        <button className="w-10 h-10 shrink-0 rounded-full glass flex items-center justify-center">
-          <Copy size={15} className="text-[var(--ink-soft)]" />
+        <button aria-label="Copy" className="btn btn-secondary w-10 h-10 shrink-0 rounded-full">
+          <Copy size={15} />
         </button>
       </div>
     </div>
@@ -91,10 +91,7 @@ function Sidebar({ active }) {
     <aside className="w-full sm:w-64 shrink-0 p-3 sm:p-4">
       <div className="glass rounded-3xl p-4 flex sm:flex-col gap-1 sm:gap-2 h-full overflow-x-auto sm:overflow-visible">
         <div className="mb-2 sm:mb-6 px-2 py-1 hidden sm:block">
-          <span className="bg-[#0B0A12] rounded-xl px-3 py-1.5 inline-flex items-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={LOGO_DATA_URI} alt="Bexalink" className="h-5 w-auto object-contain" />
-          </span>
+          <BrandLogo size="sm" href="/dashboard/links" />
         </div>
         {items.map(({ key, label, icon: Icon, gradient }) => (
           <a key={key} href={`/dashboard/${key}`}
@@ -149,14 +146,14 @@ function QuickShortener() {
           className="sm:w-56 bg-white/50 border border-white/60 rounded-xl px-3 py-2.5 text-sm font-body
                      text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400" />
         <button onClick={shorten} disabled={busy}
-          className={`px-5 py-2.5 rounded-xl text-sm font-body font-semibold text-white ${BRAND_GRADIENT} disabled:opacity-50 shadow-md`}>
+          className="btn btn-primary font-body px-5 py-2.5 rounded-xl text-sm">
           {busy ? 'Creating…' : 'Shorten'}
         </button>
       </div>
       {result && (
         <div className="mt-3 flex items-center gap-2 text-sm font-body text-[var(--ink-soft)]">
           <span>{result}</span>
-          <button onClick={() => navigator.clipboard.writeText(result)} className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)]">
+          <button onClick={() => navigator.clipboard.writeText(result)} aria-label="Copy link" className="btn btn-secondary w-8 h-8 shrink-0 rounded-full">
             <Copy size={14} />
           </button>
         </div>
