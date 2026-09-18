@@ -91,8 +91,10 @@ function Sidebar({ active }) {
     <aside className="w-full sm:w-64 shrink-0 p-3 sm:p-4">
       <div className="glass rounded-3xl p-4 flex sm:flex-col gap-1 sm:gap-2 h-full overflow-x-auto sm:overflow-visible">
         <div className="mb-2 sm:mb-6 px-2 py-1 hidden sm:block">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO_DATA_URI} alt="Bexalink" className="h-6 w-auto object-contain" />
+          <span className="bg-[#0B0A12] rounded-xl px-3 py-1.5 inline-flex items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={LOGO_DATA_URI} alt="Bexalink" className="h-5 w-auto object-contain" />
+          </span>
         </div>
         {items.map(({ key, label, icon: Icon, gradient }) => (
           <a key={key} href={`/dashboard/${key}`}
