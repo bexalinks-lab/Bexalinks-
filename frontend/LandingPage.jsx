@@ -1,41 +1,72 @@
 'use client';
 // LandingPage.jsx
-// Public marketing page for Bexalink.
-//
-// Design concept: Bexalink pays people per view, so the page is built like
-// a ledger / payout statement rather than a generic dark SaaS page — paper
-// background, ink-green text, one emerald accent for action, tabular
-// monospace numerals for every dollar figure so money always reads like
-// money. Rows and hairline rules stand in for cards; nothing gets a drop
-// shadow. The three-step section is numbered because it genuinely is a
-// sequence — nothing else on the page is.
-//
-// Drop into a Next.js app as app/page.jsx alongside Dashboard.jsx.
-// Needs lucide-react (already a Dashboard dependency).
+// Public marketing page for Bexalink — "Liquid Glass" design language:
+// frosted translucent panels floating over a soft gradient-blob backdrop
+// (see app/globals.css for the fixed background + .glass utilities),
+// gradient icon badges with a glossy highlight for a 3D-widget feel, and a
+// bold rounded display face instead of the earlier ledger/serif treatment.
 
 import { useState } from 'react';
-import { ArrowRight, Check, Globe2 } from 'lucide-react';
+import {
+  ArrowRight, Check, Globe2, Link2, ShieldCheck, Wallet, Users,
+} from 'lucide-react';
 
-function Wordmark({ className = 'text-xl' }) {
+const BRAND_GRADIENT = 'bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500';
+
+function Wordmark({ className = 'h-8' }) {
   return (
-    <span className={`font-display italic text-[var(--ink)] ${className}`}>
-      Bexalink
-    </span>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src="/logo.png" alt="Bexalink" className={`${className} w-auto object-contain`} />
+  );
+}
+
+// Soft, large blurred gradient glow blobs — used only inside the footer
+// band as background texture. Pure color glow (no icon glyphs inside),
+// since a visible stroke edge through heavy blur reads as a stray line.
+function FooterIcons() {
+  const blobs = [
+    { gradient: 'from-indigo-400 to-violet-500', style: { top: '-30%', left: '2%' }, size: 220 },
+    { gradient: 'from-sky-300 to-cyan-500', style: { top: '0%', right: '4%' }, size: 240 },
+    { gradient: 'from-pink-300 to-rose-500', style: { bottom: '-35%', left: '35%' }, size: 200 },
+  ];
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden -z-10" aria-hidden="true">
+      {blobs.map(({ gradient, style, size }, i) => (
+        <div
+          key={i}
+          className={`absolute rounded-full bg-gradient-to-br ${gradient} opacity-[0.14] blur-3xl`}
+          style={{ ...style, width: size, height: size }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// A gradient, glossy circular icon badge — the "3D widget icon" motif from
+// the reference boards, reused everywhere an icon appears.
+function IconBadge({ icon: Icon, gradient, size = 44 }) {
+  return (
+    <div
+      className={`relative shrink-0 rounded-2xl ${gradient} flex items-center justify-center shadow-lg overflow-hidden`}
+      style={{ width: size, height: size }}
+    >
+      <div className="glass-shine" />
+      <Icon size={size * 0.46} strokeWidth={2} className="text-white relative z-10" />
+    </div>
   );
 }
 
 function Nav() {
   return (
-    <header className="flex items-center justify-between px-6 sm:px-10 py-6 max-w-5xl mx-auto">
-      <Wordmark />
-      <nav className="hidden md:flex items-center gap-8 text-sm font-body text-[var(--ink-soft)]">
-        <a href="#how-it-works" className="hover:text-[var(--ink)] transition-colors">How it works</a>
-        <a href="#rates" className="hover:text-[var(--ink)] transition-colors">Rates</a>
-        <a href="#payouts" className="hover:text-[var(--ink)] transition-colors">Payouts</a>
-      </nav>
-      <div className="flex items-center gap-5 text-sm font-body">
-        <a href="/login" className="text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors">Sign in</a>
-        <a href="/signup" className="px-4 py-2 rounded bg-[var(--green)] text-white hover:bg-[var(--green-deep)] transition-colors">
+    <header className="flex items-center justify-between px-6 sm:px-10 py-5 max-w-5xl mx-auto">
+      <div className="glass rounded-full pl-5 pr-2 py-2 flex items-center gap-8 w-full sm:w-auto justify-between">
+        <Wordmark className="h-7" />
+        <nav className="hidden md:flex items-center gap-6 text-sm font-body font-medium text-[var(--ink-soft)]">
+          <a href="#how-it-works" className="hover:text-[var(--ink)] transition-colors">How it works</a>
+          <a href="#rates" className="hover:text-[var(--ink)] transition-colors">Rates</a>
+          <a href="#payouts" className="hover:text-[var(--ink)] transition-colors">Payouts</a>
+        </nav>
+        <a href="/signup" className={`px-5 py-2 rounded-full text-sm font-body font-semibold text-white ${BRAND_GRADIENT} shadow-md`}>
           Get started
         </a>
       </div>
@@ -48,16 +79,16 @@ function HeroShortenBar() {
   const [copied, setCopied] = useState(false);
 
   return (
-    <div className="border border-[var(--line)] rounded bg-[var(--surface)] p-1.5 flex flex-col sm:flex-row gap-1.5 max-w-lg">
+    <div className="glass-strong rounded-2xl p-2 flex flex-col sm:flex-row gap-2 max-w-lg">
       <input
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         placeholder="Paste a link to shorten and monetize"
-        className="flex-1 bg-transparent px-3 py-2.5 text-sm font-body text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none"
+        className="flex-1 bg-transparent px-4 py-3 text-sm font-body text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none"
       />
       <button
         onClick={() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-        className="px-5 py-2.5 rounded bg-[var(--green)] text-white text-sm font-body font-medium hover:bg-[var(--green-deep)] transition-colors flex items-center justify-center gap-2"
+        className={`px-6 py-3 rounded-xl text-sm font-body font-semibold text-white ${BRAND_GRADIENT} shadow-md flex items-center justify-center gap-2`}
       >
         {copied ? <>Ready <Check size={15} /></> : <>Shorten <ArrowRight size={15} /></>}
       </button>
@@ -65,52 +96,55 @@ function HeroShortenBar() {
   );
 }
 
-function LedgerLine({ label, value, sub }) {
+function WidgetStat({ label, value, sublabel, gradient }) {
   return (
-    <div className="flex items-baseline justify-between py-3 border-b border-[var(--line)] last:border-0">
-      <span className="text-sm font-body text-[var(--ink-soft)]">{label}</span>
-      <span className="text-right">
-        <span className="font-ledger text-base text-[var(--ink)]">{value}</span>
-        {sub && <span className="block text-xs font-body text-[var(--ink-faint)] mt-0.5">{sub}</span>}
-      </span>
+    <div className={`glass rounded-3xl p-5 relative overflow-hidden`}>
+      <div className={`absolute -top-10 -right-10 w-28 h-28 rounded-full ${gradient} opacity-30 blur-2xl`} />
+      <p className="text-xs font-body font-medium text-[var(--ink-faint)] mb-2 relative z-10">{label}</p>
+      <p className="font-display font-bold text-3xl text-[var(--ink)] relative z-10">{value}</p>
+      {sublabel && <p className="text-xs font-body text-[var(--ink-faint)] mt-1 relative z-10">{sublabel}</p>}
     </div>
   );
 }
 
 function Hero() {
   return (
-    <section className="px-6 sm:px-10 max-w-5xl mx-auto pt-6 pb-20 grid lg:grid-cols-[1.1fr_0.9fr] gap-14 items-start">
-      <div>
-        <h1 className="font-display text-[2.75rem] sm:text-5xl leading-[1.08] text-[var(--ink)] mb-6">
-          Every link is a line item you get paid for.
-        </h1>
-        <p className="font-body text-[var(--ink-soft)] text-base sm:text-lg mb-8 max-w-md leading-relaxed">
-          Bexalink shortens your links and credits your balance per verified
-          view — real visitors only, checked the way ad networks check them,
-          with payouts you can request the same day.
-        </p>
-        <HeroShortenBar />
-        <p className="text-xs font-body text-[var(--ink-faint)] mt-4">No card required. First payout available at $5.</p>
-      </div>
+    <section className="px-6 sm:px-10 max-w-5xl mx-auto pt-10 pb-20">
+      <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
+        <div>
+          <h1 className="font-display font-extrabold text-[2.6rem] sm:text-5xl leading-[1.08] text-[var(--ink)] mb-6">
+            Every link you share can pay you back.
+          </h1>
+          <p className="font-body text-[var(--ink-soft)] text-base sm:text-lg mb-8 max-w-md leading-relaxed">
+            Bexalink shortens your links and credits your balance per
+            verified view — real visitors only, checked the way ad networks
+            check them, with payouts you can request the same day.
+          </p>
+          <HeroShortenBar />
+          <p className="text-xs font-body text-[var(--ink-faint)] mt-4">No card required. First payout available at $5.</p>
+        </div>
 
-      <div className="bg-[var(--surface)] border border-[var(--line)] rounded px-6 py-2">
-        <p className="text-xs font-body uppercase tracking-wide text-[var(--ink-faint)] pt-4 pb-1">This month, average account</p>
-        <LedgerLine label="Verified views" value="18,240" />
-        <LedgerLine label="Blended CPM" value="$3.90" sub="varies by viewer country" />
-        <LedgerLine label="Referral credit" value="$14.02" sub="10% of referred earnings" />
-        <LedgerLine label="Balance available" value="$71.16" sub="withdrawable now" />
+        <div className="grid grid-cols-2 gap-4">
+          <WidgetStat label="Avg. CPM" value="$4.80" sublabel="Tier-1 traffic" gradient="bg-indigo-500" />
+          <WidgetStat label="Payout time" value="< 24h" gradient="bg-pink-500" />
+          <WidgetStat label="Referral share" value="10%" sublabel="For life" gradient="bg-sky-400" />
+          <WidgetStat label="Payout methods" value="15+" gradient="bg-violet-500" />
+        </div>
       </div>
     </section>
   );
 }
 
-function Step({ n, title, children }) {
+function Step({ n, icon: Icon, gradient, title, children }) {
   return (
-    <div className="border-t border-[var(--line)] py-7 grid sm:grid-cols-[3rem_1fr] gap-3 sm:gap-8">
-      <span className="font-ledger text-sm text-[var(--ink-faint)]">{n}</span>
+    <div className="glass rounded-3xl p-6 flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <IconBadge icon={Icon} gradient={gradient} />
+        <span className="font-display font-bold text-2xl text-[var(--ink-faint)]">{n}</span>
+      </div>
       <div>
-        <h3 className="font-body text-[var(--ink)] text-base font-medium mb-1.5">{title}</h3>
-        <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed max-w-md">{children}</p>
+        <h3 className="font-body text-[var(--ink)] text-base font-bold mb-1.5">{title}</h3>
+        <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed">{children}</p>
       </div>
     </div>
   );
@@ -118,66 +152,69 @@ function Step({ n, title, children }) {
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="px-6 sm:px-10 max-w-5xl mx-auto py-16">
-      <h2 className="font-display italic text-3xl text-[var(--ink)] mb-2">From link to payout.</h2>
-      <p className="font-body text-[var(--ink-soft)] max-w-md mb-2">Three steps, in order, every time.</p>
-      <div>
-        <Step n="01" title="Shorten your link">
+    <section id="how-it-works" className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
+      <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">From link to payout, three steps.</h2>
+      <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">Shorten it, share it, get paid for it.</p>
+      <div className="grid sm:grid-cols-3 gap-5">
+        <Step n="01" icon={Link2} gradient="bg-gradient-to-br from-indigo-400 to-indigo-600" title="Shorten your link">
           Paste any destination URL into your dashboard or the API. Bexalink
-          returns a short link immediately.
+          returns a short link instantly.
         </Step>
-        <Step n="02" title="Share it anywhere">
-          Drop it into a video description, a forum post, a Telegram channel
-          — wherever your audience already is.
+        <Step n="02" icon={Globe2} gradient="bg-gradient-to-br from-sky-400 to-cyan-500" title="Share it anywhere">
+          Drop it into a video description, a forum post, a Telegram
+          channel — wherever your audience already is.
         </Step>
-        <Step n="03" title="Get paid per view">
-          Each visit is checked for bots, VPNs, and duplicate clicks, then
-          credited to your balance at your country's rate.
+        <Step n="03" icon={Wallet} gradient="bg-gradient-to-br from-pink-400 to-rose-500" title="Get paid per view">
+          Each visit is checked for bots and duplicates, then credited to
+          your balance at your country's rate.
         </Step>
       </div>
     </section>
   );
 }
 
-function FeatureRow({ title, children }) {
+function FeatureCard({ icon: Icon, gradient, title, children }) {
   return (
-    <div className="py-6 border-b border-[var(--line)] last:border-0">
-      <h3 className="font-body text-[var(--ink)] text-sm font-medium mb-1.5">{title}</h3>
-      <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed max-w-md">{children}</p>
+    <div className="glass rounded-3xl p-6 flex gap-4">
+      <IconBadge icon={Icon} gradient={gradient} />
+      <div>
+        <h3 className="font-body text-[var(--ink)] text-sm font-bold mb-1.5">{title}</h3>
+        <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed">{children}</p>
+      </div>
     </div>
   );
 }
 
 function Features() {
   return (
-    <section className="px-6 sm:px-10 max-w-5xl mx-auto py-16 border-t border-[var(--line)] grid lg:grid-cols-2 gap-x-16">
-      <div className="mb-8 lg:mb-0">
-        <h2 className="font-display italic text-3xl text-[var(--ink)] mb-4 max-w-sm">
+    <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
+      <div className="mb-8 max-w-lg">
+        <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-3">
           Built on the parts of ad monetization people complain about most.
         </h2>
-        <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed max-w-sm">
-          Every line below exists because a publisher asked for it — rates
-          that hold, fraud caught before it's counted, and payouts that
-          don't wait for a batch.
+        <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed">
+          Every feature below exists because a publisher asked for it —
+          rates that hold, fraud caught before it's counted, and payouts
+          that don't wait for a batch.
         </p>
       </div>
-      <div>
-        <FeatureRow title="Rates that hold">
-          CPM is resolved per country and cached, not renegotiated against
-          you once your traffic ramps up.
-        </FeatureRow>
-        <FeatureRow title="Fraud filtered before it's counted">
+      <div className="grid sm:grid-cols-2 gap-5">
+        <FeatureCard icon={ShieldCheck} gradient="bg-gradient-to-br from-violet-400 to-purple-600" title="Fraud filtered before it's counted">
           Bots, VPNs, proxies, and datacenter traffic are screened out
-          before a view reaches your earnings — not after a clawback.
-        </FeatureRow>
-        <FeatureRow title="Same-day payouts">
+          before a view reaches your earnings.
+        </FeatureCard>
+        <FeatureCard icon={Wallet} gradient="bg-gradient-to-br from-pink-400 to-rose-500" title="Same-day payouts">
           Request a withdrawal and it's processed the same day, not held
           for a weekly cycle.
-        </FeatureRow>
-        <FeatureRow title="10% for life, not 30 days">
+        </FeatureCard>
+        <FeatureCard icon={Users} gradient="bg-gradient-to-br from-sky-400 to-blue-500" title="10% for life, not 30 days">
           Refer another publisher and earn a share of their earnings for as
           long as their account stays active.
-        </FeatureRow>
+        </FeatureCard>
+        <FeatureCard icon={Link2} gradient="bg-gradient-to-br from-indigo-400 to-indigo-600" title="Rates that hold">
+          CPM is resolved per country and cached, not renegotiated against
+          you once your traffic ramps up.
+        </FeatureCard>
       </div>
     </section>
   );
@@ -185,25 +222,25 @@ function Features() {
 
 function RateRow({ country, cpm }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-[var(--line)] last:border-0">
+    <div className="flex items-center justify-between py-3 border-b border-white/40 last:border-0">
       <span className="font-body text-sm text-[var(--ink)]">{country}</span>
-      <span className="font-ledger text-sm text-[var(--ink)]">${cpm.toFixed(2)}</span>
+      <span className="font-display font-semibold text-sm text-[var(--ink)]">${cpm.toFixed(2)}</span>
     </div>
   );
 }
 
 function Rates() {
   return (
-    <section id="rates" className="px-6 sm:px-10 max-w-5xl mx-auto py-16 border-t border-[var(--line)] grid lg:grid-cols-2 gap-14 items-start">
+    <section id="rates" className="px-6 sm:px-10 max-w-5xl mx-auto py-10 grid lg:grid-cols-2 gap-10 items-start">
       <div>
-        <h2 className="font-display italic text-3xl text-[var(--ink)] mb-4">Priced by where your viewer is.</h2>
+        <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-3">Priced by where your viewer is.</h2>
         <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed max-w-sm">
           The figures below are current per-1,000-view averages. Your
           dashboard shows the live rate for every country sending you
           traffic.
         </p>
       </div>
-      <div className="bg-[var(--surface)] border border-[var(--line)] rounded px-6">
+      <div className="glass rounded-3xl px-6 py-2">
         <RateRow country="United States" cpm={6.2} />
         <RateRow country="United Kingdom" cpm={5.4} />
         <RateRow country="Germany" cpm={5.1} />
@@ -217,9 +254,9 @@ function Rates() {
 
 function Testimonial() {
   return (
-    <section className="px-6 sm:px-10 max-w-5xl mx-auto py-16 border-t border-[var(--line)]">
-      <div className="max-w-xl">
-        <p className="font-display italic text-2xl text-[var(--ink)] leading-snug mb-5">
+    <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
+      <div className="glass-strong rounded-3xl p-8 max-w-xl">
+        <p className="font-display font-medium text-2xl text-[var(--ink)] leading-snug mb-5">
           I moved my whole Telegram audience over about four months ago.
           Payouts have landed on time every week since.
         </p>
@@ -232,12 +269,13 @@ function Testimonial() {
 function Payouts() {
   const methods = ['PayPal', 'Payoneer', 'Bank transfer', 'USDT', 'UPI', 'Wise'];
   return (
-    <section id="payouts" className="px-6 sm:px-10 max-w-5xl mx-auto py-16 border-t border-[var(--line)]">
-      <h2 className="font-display italic text-3xl text-[var(--ink)] mb-8">Fifteen ways to get paid, worldwide.</h2>
-      <div className="flex flex-wrap gap-x-10 gap-y-4">
+    <section id="payouts" className="px-6 sm:px-10 max-w-5xl mx-auto py-10 relative">
+      <div className="absolute top-0 left-1/4 w-56 h-56 rounded-full bg-gradient-to-br from-sky-300 to-indigo-400 opacity-20 blur-3xl -z-10" />
+      <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-6">Fifteen ways to get paid, worldwide.</h2>
+      <div className="flex flex-wrap gap-3">
         {methods.map((m) => (
-          <span key={m} className="font-body text-sm text-[var(--ink-soft)] flex items-center gap-2">
-            <Globe2 size={15} className="text-[var(--ink-faint)]" /> {m}
+          <span key={m} className="glass rounded-full px-4 py-2 font-body text-sm text-[var(--ink-soft)]">
+            {m}
           </span>
         ))}
       </div>
@@ -247,37 +285,80 @@ function Payouts() {
 
 function ClosingCTA() {
   return (
-    <section className="px-6 sm:px-10 max-w-5xl mx-auto py-20 border-t border-[var(--line)]">
-      <h2 className="font-display italic text-3xl sm:text-4xl text-[var(--ink)] mb-3 max-w-lg">
-        Your next link could be your first payout.
-      </h2>
-      <p className="font-body text-[var(--ink-soft)] mb-8">Free to join. No minimum traffic required.</p>
-      <a href="/signup" className="inline-flex items-center gap-2 px-6 py-3 rounded bg-[var(--green)] text-white font-body font-medium hover:bg-[var(--green-deep)] transition-colors">
-        Create your account <ArrowRight size={16} />
-      </a>
+    <section className="px-6 sm:px-10 max-w-5xl mx-auto py-16 flex justify-center">
+      <div className="relative w-full max-w-sm p-7 overflow-hidden glass-strong" style={{ borderRadius: 40 }}>
+        {/* soft interior gradient wash, like the reference profile card */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-200/70 via-sky-100/50 to-pink-100/60" />
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br from-violet-400 to-pink-400 opacity-30 blur-2xl -z-10" />
+
+        <div className="flex items-start justify-between mb-5">
+          <div className={`w-14 h-14 rounded-2xl ${BRAND_GRADIENT} flex items-center justify-center shadow-lg relative overflow-hidden`}>
+            <div className="glass-shine" />
+            <Wallet size={26} className="text-white relative z-10" />
+          </div>
+          <span className="w-9 h-9 rounded-full glass flex items-center justify-center">
+            <ArrowRight size={15} className="text-[var(--ink-soft)]" />
+          </span>
+        </div>
+
+        <h2 className="font-display font-bold text-2xl text-[var(--ink)] mb-1">Create your account</h2>
+        <p className="font-body text-sm text-[var(--ink-soft)] mb-5">Free to join. No minimum traffic required.</p>
+
+        <div className="flex gap-2 mb-6">
+          <span className="glass rounded-full px-3 py-1 text-xs font-body text-[var(--ink-soft)]">Instant payouts</span>
+          <span className="glass rounded-full px-3 py-1 text-xs font-body text-[var(--ink-soft)]">15+ countries</span>
+        </div>
+
+        <div className="flex items-center justify-between mb-6 text-center">
+          <div>
+            <p className="font-display font-bold text-lg text-[var(--ink)]">$4.80</p>
+            <p className="text-xs font-body text-[var(--ink-faint)]">Avg. CPM</p>
+          </div>
+          <div>
+            <p className="font-display font-bold text-lg text-[var(--ink)]">10%</p>
+            <p className="text-xs font-body text-[var(--ink-faint)]">Referral</p>
+          </div>
+          <div>
+            <p className="font-display font-bold text-lg text-[var(--ink)]">&lt;24h</p>
+            <p className="text-xs font-body text-[var(--ink-faint)]">Payout</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <a href="/signup" className={`flex-1 text-center px-5 py-3 rounded-full text-sm font-body font-semibold text-white ${BRAND_GRADIENT} shadow-md`}>
+            Get started
+          </a>
+          <a href="/login" className="w-11 h-11 shrink-0 rounded-full glass flex items-center justify-center">
+            <ArrowRight size={16} className="text-[var(--ink-soft)]" />
+          </a>
+        </div>
+      </div>
     </section>
   );
 }
 
 function Footer() {
   return (
-    <footer className="px-6 sm:px-10 max-w-5xl mx-auto py-12 border-t border-[var(--line)] flex flex-col sm:flex-row justify-between gap-6 text-sm font-body text-[var(--ink-faint)]">
-      <div>
-        <Wordmark className="text-lg" />
-        <p className="mt-2 max-w-xs">Shorten, share, and get paid from every link you send out.</p>
-      </div>
-      <div className="flex gap-10">
-        <div className="flex flex-col gap-2">
-          <span className="text-[var(--ink-soft)] mb-1">Product</span>
-          <a href="#how-it-works" className="hover:text-[var(--ink-soft)]">How it works</a>
-          <a href="#rates" className="hover:text-[var(--ink-soft)]">Rates</a>
-          <a href="#payouts" className="hover:text-[var(--ink-soft)]">Payouts</a>
+    <footer className="relative overflow-hidden">
+      <FooterIcons />
+      <div className="px-6 sm:px-10 max-w-5xl mx-auto py-10 flex flex-col sm:flex-row justify-between gap-6 text-sm font-body text-[var(--ink-faint)]">
+        <div>
+          <Wordmark className="h-6" />
+          <p className="mt-2 max-w-xs">Shorten, share, and get paid from every link you send out.</p>
         </div>
-        <div className="flex flex-col gap-2">
-          <span className="text-[var(--ink-soft)] mb-1">Company</span>
-          <a href="/about" className="hover:text-[var(--ink-soft)]">About</a>
-          <a href="/contact" className="hover:text-[var(--ink-soft)]">Contact</a>
-          <a href="/dmca" className="hover:text-[var(--ink-soft)]">DMCA</a>
+        <div className="flex gap-10">
+          <div className="flex flex-col gap-2">
+            <span className="text-[var(--ink-soft)] mb-1 font-semibold">Product</span>
+            <a href="#how-it-works" className="hover:text-[var(--ink-soft)]">How it works</a>
+            <a href="#rates" className="hover:text-[var(--ink-soft)]">Rates</a>
+            <a href="#payouts" className="hover:text-[var(--ink-soft)]">Payouts</a>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-[var(--ink-soft)] mb-1 font-semibold">Company</span>
+            <a href="/about" className="hover:text-[var(--ink-soft)]">About</a>
+            <a href="/contact" className="hover:text-[var(--ink-soft)]">Contact</a>
+            <a href="/dmca" className="hover:text-[var(--ink-soft)]">DMCA</a>
+          </div>
         </div>
       </div>
     </footer>
@@ -286,7 +367,7 @@ function Footer() {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[var(--paper)]">
+    <div className="min-h-screen">
       <Nav />
       <Hero />
       <HowItWorks />
