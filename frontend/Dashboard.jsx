@@ -151,10 +151,19 @@ export default function Dashboard() {
   const [trend, setTrend] = useState([]);
 
   useEffect(() => {
-    fetch('/api/dashboard/summary').then((r) => r.json()).then(setSummary);
-    fetch('/api/dashboard/links').then((r) => r.json()).then(setLinks);
-    fetch('/api/dashboard/earnings-trend?days=14').then((r) => r.json()).then(setTrend).catch(() => setTrend([]));
-  }, []);
+  fetch('/api/dashboard/summary')
+    .then((r) => r.json())
+    .then((data) => { if (data && !data.error) setSummary(data); })
+    .catch(() => {});
+  fetch('/api/dashboard/links')
+    .then((r) => r.json())
+    .then((data) => { if (Array.isArray(data)) setLinks(data); })
+    .catch(() => setLinks([]));
+  fetch('/api/dashboard/earnings-trend?days=14')
+    .then((r) => r.json())
+    .then((data) => { if (Array.isArray(data)) setTrend(data); })
+    .catch(() => setTrend([]));
+}, []);
 
   return (
     <div className="min-h-screen bg-[#0B0A0C] text-white flex">
