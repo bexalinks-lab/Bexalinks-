@@ -15,10 +15,12 @@ import BrandLogo from './BrandLogo';
 const BRAND_GRADIENT = 'bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500';
 // Every button is black & white to match the logo. Styles live in
 // app/globals.css (.btn, .btn-primary, .btn-secondary).
-function CtaButton({ children, className = '', ...props }) {
+function CtaButton({ children, className = '', variant, ...props }) {
   const Comp = props.href ? 'a' : 'button';
+  const variantClass =
+    variant === 'glow' ? 'btn-gradient-glow' : variant === 'ring' ? 'btn-gradient-ring' : '';
   return (
-    <Comp {...props} className={`btn btn-primary font-body ${className}`}>
+    <Comp {...props} className={`btn btn-primary font-body ${variantClass} ${className}`}>
       {children}
     </Comp>
   );
@@ -69,7 +71,7 @@ function Nav() {
         <a href="#rates" className="hover:text-[var(--ink)] transition-colors">Rates</a>
         <a href="#payouts" className="hover:text-[var(--ink)] transition-colors">Payouts</a>
       </nav>
-      <CtaButton href="/signup" className="px-3.5 py-2 rounded-full text-xs shrink-0">
+      <CtaButton href="/signup" variant="glow" className="px-6 py-2.5 rounded-full text-sm font-semibold shrink-0">
         Get started
       </CtaButton>
     </header>
@@ -107,14 +109,19 @@ function HeroShortenBar() {
 
   return (
     <div>
-      <div className="glass-strong rounded-2xl p-2 flex flex-col sm:flex-row gap-2 max-w-lg">
+      <div className="glass-strong rounded-3xl p-3 flex flex-col gap-3 max-w-lg">
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="Paste a link to shorten and monetize"
-          className="flex-1 bg-transparent px-4 py-3 text-sm font-body text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none"
+          className="w-full bg-white/70 border border-black/10 rounded-full px-5 py-3.5 text-sm font-body text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none"
         />
-        <CtaButton onClick={shorten} disabled={busy} className="px-6 py-3 rounded-xl text-sm disabled:opacity-60">
+        <CtaButton
+          onClick={shorten}
+          disabled={busy}
+          variant="ring"
+          className="w-full py-3.5 rounded-full text-sm font-semibold disabled:opacity-60"
+        >
           {busy ? 'Shortening…' : <>Shorten <ArrowRight size={15} /></>}
         </CtaButton>
       </div>
