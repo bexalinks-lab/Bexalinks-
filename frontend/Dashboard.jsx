@@ -134,24 +134,24 @@ function QuickShortener() {
   }
 
   return (
-    <div className="glass rounded-3xl p-5 mb-6">
-      <p className="text-sm font-body font-semibold text-[var(--ink)] mb-3">Shorten a new link</p>
+    <div className="glass rounded-3xl p-5 mb-6 font-shorten">
+      <p className="text-sm font-semibold text-[var(--ink)] mb-3">Shorten a new link</p>
       <div className="flex flex-col sm:flex-row gap-3">
         <input value={url} onChange={(e) => setUrl(e.target.value)}
           placeholder="https://your-long-destination-url.com/..."
-          className="flex-1 bg-white/50 border border-white/60 rounded-xl px-3 py-2.5 text-sm font-body
+          className="flex-1 bg-white/50 border border-white/60 rounded-full px-5 py-2.5 text-sm font-shorten
                      text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400" />
         <input value={alias} onChange={(e) => setAlias(e.target.value)}
           placeholder="custom-alias (optional)"
-          className="sm:w-56 bg-white/50 border border-white/60 rounded-xl px-3 py-2.5 text-sm font-body
+          className="sm:w-56 bg-white/50 border border-white/60 rounded-full px-5 py-2.5 text-sm font-shorten
                      text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400" />
         <button onClick={shorten} disabled={busy}
-          className="btn btn-primary btn-gradient-ring font-body px-5 py-2.5 rounded-xl text-sm">
+          className="btn btn-shorten px-8 py-2.5 rounded-full text-sm">
           {busy ? 'Creating…' : 'Shorten'}
         </button>
       </div>
       {result && (
-        <div className="mt-3 flex items-center gap-2 text-sm font-body text-[var(--ink-soft)]">
+        <div className="mt-3 flex items-center gap-2 text-sm text-[var(--ink-soft)]">
           <span>{result}</span>
           <button onClick={() => navigator.clipboard.writeText(result)} aria-label="Copy link" className="btn btn-secondary w-8 h-8 shrink-0 rounded-full">
             <Copy size={14} />
