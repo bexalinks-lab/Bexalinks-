@@ -10,41 +10,17 @@ import { useState } from 'react';
 import {
   ArrowRight, Globe2, Link2, ShieldCheck, Wallet, Users, Copy, Zap, TrendingUp,
 } from 'lucide-react';
-import { LOGO_DATA_URI } from './logo-data';
+import BrandLogo from './BrandLogo';
 
 const BRAND_GRADIENT = 'bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500';
-// A punchier, distinct gradient just for primary action buttons — warm
-// fuchsia into deep violet — plus a colored glow shadow and a glossy
-// highlight so the CTA reads as a raised, glassy 3D pill.
-const CTA_GRADIENT = 'bg-gradient-to-r from-orange-400 via-fuchsia-500 to-indigo-600';
-const CTA_SHADOW = { boxShadow: '0 10px 30px -6px rgba(217, 70, 239, 0.55)' };
-
+// Every button is black & white to match the logo. Styles live in
+// app/globals.css (.btn, .btn-primary, .btn-secondary).
 function CtaButton({ children, className = '', ...props }) {
   const Comp = props.href ? 'a' : 'button';
   return (
-    <Comp
-      {...props}
-      style={CTA_SHADOW}
-      className={`relative overflow-hidden ${CTA_GRADIENT} text-white font-body font-semibold ${className}`}
-    >
-      <span className="glass-shine" style={{ width: '45%', height: '35%' }} />
-      <span className="relative z-10 flex items-center justify-center gap-2 whitespace-nowrap">{children}</span>
+    <Comp {...props} className={`btn btn-primary font-body ${className}`}>
+      {children}
     </Comp>
-  );
-}
-
-function Wordmark({ className = 'h-8', dark = false }) {
-  const img = (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={LOGO_DATA_URI} alt="Bexalink" className={`${className} w-auto object-contain`} />
-  );
-  if (!dark) return img;
-  // The logo's gradient text was designed for a dark backdrop, so give it
-  // a small dark chip of its own wherever it sits on the light glass UI.
-  return (
-    <span className="bg-[#0B0A12] rounded-xl px-3 py-1.5 flex items-center shrink-0">
-      {img}
-    </span>
   );
 }
 
@@ -86,18 +62,16 @@ function IconBadge({ icon: Icon, gradient, size = 44 }) {
 
 function Nav() {
   return (
-    <header className="flex items-center justify-between px-6 sm:px-10 py-5 max-w-5xl mx-auto">
-      <div className="glass rounded-full pl-2 pr-2 py-2 flex items-center gap-3 sm:gap-8 w-full sm:w-auto justify-between">
-        <Wordmark className="h-6 sm:h-7" dark />
-        <nav className="hidden md:flex items-center gap-6 text-sm font-body font-medium text-[var(--ink-soft)]">
-          <a href="#how-it-works" className="hover:text-[var(--ink)] transition-colors">How it works</a>
-          <a href="#rates" className="hover:text-[var(--ink)] transition-colors">Rates</a>
-          <a href="#payouts" className="hover:text-[var(--ink)] transition-colors">Payouts</a>
-        </nav>
-        <CtaButton href="/signup" className="px-4 py-2 sm:px-5 rounded-full text-xs sm:text-sm whitespace-nowrap shrink-0">
-          Get started
-        </CtaButton>
-      </div>
+    <header className="flex items-center justify-between gap-4 px-6 sm:px-10 py-4 max-w-5xl mx-auto">
+      <BrandLogo href="/" />
+      <nav className="hidden md:flex items-center gap-6 text-sm font-body font-medium text-[var(--ink-soft)]">
+        <a href="#how-it-works" className="hover:text-[var(--ink)] transition-colors">How it works</a>
+        <a href="#rates" className="hover:text-[var(--ink)] transition-colors">Rates</a>
+        <a href="#payouts" className="hover:text-[var(--ink)] transition-colors">Payouts</a>
+      </nav>
+      <CtaButton href="/signup" className="px-3.5 py-2 rounded-full text-xs shrink-0">
+        Get started
+      </CtaButton>
     </header>
   );
 }
@@ -147,7 +121,7 @@ function HeroShortenBar() {
       {result && (
         <div className="mt-3 flex items-center gap-2 text-sm font-body text-[var(--ink-soft)]">
           <a href={result} target="_blank" rel="noopener noreferrer" className="underline">{result}</a>
-          <button onClick={() => navigator.clipboard.writeText(result)} className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)]">
+          <button onClick={() => navigator.clipboard.writeText(result)} aria-label="Copy link" className="btn btn-secondary w-8 h-8 shrink-0 rounded-full">
             <Copy size={14} />
           </button>
         </div>
@@ -384,8 +358,8 @@ function ClosingCTA() {
             <div className="glass-shine" />
             <Wallet size={26} className="text-white relative z-10" />
           </div>
-          <span className="w-9 h-9 rounded-full glass flex items-center justify-center">
-            <ArrowRight size={15} className="text-[var(--ink-soft)]" />
+          <span className="w-9 h-9 rounded-full bg-white border border-black/10 flex items-center justify-center">
+            <ArrowRight size={15} className="text-black" />
           </span>
         </div>
 
@@ -416,8 +390,8 @@ function ClosingCTA() {
           <CtaButton href="/signup" className="flex-1 text-center px-5 py-3 rounded-full text-sm">
             Get started
           </CtaButton>
-          <a href="/login" className="w-11 h-11 shrink-0 rounded-full glass flex items-center justify-center">
-            <ArrowRight size={16} className="text-[var(--ink-soft)]" />
+          <a href="/login" aria-label="Log in" className="btn btn-secondary w-11 h-11 shrink-0 rounded-full">
+            <ArrowRight size={16} />
           </a>
         </div>
       </div>
@@ -431,7 +405,7 @@ function Footer() {
       <FooterIcons />
       <div className="px-6 sm:px-10 max-w-5xl mx-auto py-10 flex flex-col sm:flex-row justify-between gap-6 text-sm font-body text-[var(--ink-faint)]">
         <div>
-          <Wordmark className="h-5" dark />
+          <BrandLogo size="sm" />
           <p className="mt-2 max-w-xs">Shorten, share, and get paid from every link you send out.</p>
         </div>
         <div className="flex gap-10">
