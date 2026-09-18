@@ -146,7 +146,7 @@ function QuickShortener() {
           className="sm:w-56 bg-white/50 border border-white/60 rounded-xl px-3 py-2.5 text-sm font-body
                      text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400" />
         <button onClick={shorten} disabled={busy}
-          className="btn btn-primary font-body px-5 py-2.5 rounded-xl text-sm">
+          className="btn btn-primary btn-gradient-ring font-body px-5 py-2.5 rounded-xl text-sm">
           {busy ? 'Creating…' : 'Shorten'}
         </button>
       </div>
