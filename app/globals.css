@@ -2,34 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,440;0,9..144,600;1,9..144,500&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --paper: #F4F6F0;
-  --surface: #FFFFFF;
-  --ink: #16241C;
-  --ink-soft: rgba(22, 36, 28, 0.62);
-  --ink-faint: rgba(22, 36, 28, 0.38);
-  --line: rgba(22, 36, 28, 0.13);
-  --green: #1F7A4D;
-  --green-deep: #123D27;
-  --gold: #A97C25;
+  --ink: #1D1B2E;
+  --ink-soft: rgba(29, 27, 46, 0.62);
+  --ink-faint: rgba(29, 27, 46, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --glass-fill: rgba(255, 255, 255, 0.38);
+  --glass-fill-strong: rgba(255, 255, 255, 0.55);
 }
 
 html, body {
-  background: var(--paper);
+  background: #EEF0FA;
   color: var(--ink);
+  min-height: 100%;
+}
+
+body {
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Fixed gradient-blob backdrop behind every page — the "liquid glass" glow
+   that all frosted cards float above. Fixed so it stays put while content
+   scrolls over it. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  background:
+    radial-gradient(45% 38% at 10% 6%, rgba(99, 102, 241, 0.7), transparent 70%),
+    radial-gradient(48% 42% at 90% 15%, rgba(236, 72, 153, 0.6), transparent 70%),
+    radial-gradient(52% 46% at 20% 95%, rgba(56, 189, 248, 0.55), transparent 70%),
+    radial-gradient(46% 40% at 92% 90%, rgba(168, 85, 247, 0.55), transparent 70%),
+    linear-gradient(135deg, #EEF0FA 0%, #F3E9FB 50%, #EAF6FD 100%);
+  filter: blur(55px) saturate(160%);
 }
 
 .font-display {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Outfit', ui-sans-serif, sans-serif;
 }
 
 .font-body {
-  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.font-ledger {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-variant-numeric: tabular-nums;
+/* Glass surface: the reusable frosted-card treatment. */
+.glass {
+  background: var(--glass-fill);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 8px 32px rgba(29, 27, 46, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.glass-strong {
+  background: var(--glass-fill-strong);
+  backdrop-filter: blur(32px) saturate(160%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 12px 40px rgba(29, 27, 46, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* Glossy highlight blob dropped inside a gradient icon badge to fake a 3D
+   glass-icon specular reflection. */
+.glass-shine {
+  position: absolute;
+  top: 8%;
+  left: 14%;
+  width: 55%;
+  height: 40%;
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: 999px;
+  filter: blur(6px);
+  opacity: 0.8;
+  pointer-events: none;
 }
