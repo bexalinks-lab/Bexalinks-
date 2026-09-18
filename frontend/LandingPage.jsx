@@ -8,15 +8,35 @@
 
 import { useState } from 'react';
 import {
-  ArrowRight, Check, Globe2, Link2, ShieldCheck, Wallet, Users,
+  ArrowRight, Globe2, Link2, ShieldCheck, Wallet, Users, Copy, Zap, TrendingUp,
 } from 'lucide-react';
+import { LOGO_DATA_URI } from './logo-data';
 
 const BRAND_GRADIENT = 'bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500';
+// A punchier, distinct gradient just for primary action buttons — warm
+// fuchsia into deep violet — plus a colored glow shadow and a glossy
+// highlight so the CTA reads as a raised, glassy 3D pill.
+const CTA_GRADIENT = 'bg-gradient-to-r from-orange-400 via-fuchsia-500 to-indigo-600';
+const CTA_SHADOW = { boxShadow: '0 10px 30px -6px rgba(217, 70, 239, 0.55)' };
+
+function CtaButton({ children, className = '', ...props }) {
+  const Comp = props.href ? 'a' : 'button';
+  return (
+    <Comp
+      {...props}
+      style={CTA_SHADOW}
+      className={`relative overflow-hidden ${CTA_GRADIENT} text-white font-body font-semibold ${className}`}
+    >
+      <span className="glass-shine" style={{ width: '45%', height: '35%' }} />
+      <span className="relative z-10 flex items-center justify-center gap-2">{children}</span>
+    </Comp>
+  );
+}
 
 function Wordmark({ className = 'h-8' }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src="/logo.png" alt="Bexalink" className={`${className} w-auto object-contain`} />
+    <img src={LOGO_DATA_URI} alt="Bexalink" className={`${className} w-auto object-contain`} />
   );
 }
 
@@ -66,9 +86,9 @@ function Nav() {
           <a href="#rates" className="hover:text-[var(--ink)] transition-colors">Rates</a>
           <a href="#payouts" className="hover:text-[var(--ink)] transition-colors">Payouts</a>
         </nav>
-        <a href="/signup" className={`px-5 py-2 rounded-full text-sm font-body font-semibold text-white ${BRAND_GRADIENT} shadow-md`}>
+        <CtaButton href="/signup" className="px-5 py-2 rounded-full text-sm">
           Get started
-        </a>
+        </CtaButton>
       </div>
     </header>
   );
@@ -76,22 +96,55 @@ function Nav() {
 
 function HeroShortenBar() {
   const [url, setUrl] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  async function shorten() {
+    if (!url || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destinationUrl: url }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setResult(data.shortUrl);
+      } else {
+        setError(data.error || 'Could not shorten that link. Sign in and try again.');
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
-    <div className="glass-strong rounded-2xl p-2 flex flex-col sm:flex-row gap-2 max-w-lg">
-      <input
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder="Paste a link to shorten and monetize"
-        className="flex-1 bg-transparent px-4 py-3 text-sm font-body text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none"
-      />
-      <button
-        onClick={() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-        className={`px-6 py-3 rounded-xl text-sm font-body font-semibold text-white ${BRAND_GRADIENT} shadow-md flex items-center justify-center gap-2`}
-      >
-        {copied ? <>Ready <Check size={15} /></> : <>Shorten <ArrowRight size={15} /></>}
-      </button>
+    <div>
+      <div className="glass-strong rounded-2xl p-2 flex flex-col sm:flex-row gap-2 max-w-lg">
+        <input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Paste a link to shorten and monetize"
+          className="flex-1 bg-transparent px-4 py-3 text-sm font-body text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none"
+        />
+        <CtaButton onClick={shorten} disabled={busy} className="px-6 py-3 rounded-xl text-sm disabled:opacity-60">
+          {busy ? 'Shortening…' : <>Shorten <ArrowRight size={15} /></>}
+        </CtaButton>
+      </div>
+      {result && (
+        <div className="mt-3 flex items-center gap-2 text-sm font-body text-[var(--ink-soft)]">
+          <a href={result} target="_blank" rel="noopener noreferrer" className="underline">{result}</a>
+          <button onClick={() => navigator.clipboard.writeText(result)} className="text-[var(--ink-faint)] hover:text-[var(--ink-soft)]">
+            <Copy size={14} />
+          </button>
+        </div>
+      )}
+      {error && <p className="mt-3 text-sm font-body text-rose-600">{error}</p>}
     </div>
   );
 }
@@ -107,11 +160,38 @@ function WidgetStat({ label, value, sublabel, gradient }) {
   );
 }
 
+// Big glossy 3D icon badges scattered behind the headline — link/money
+// themed, positioned so they peek from around the text rather than sit on
+// top of it (kept behind via -z-10 and clipped to this section only).
+function HeroIcons() {
+  const icons = [
+    { Icon: Link2, gradient: 'from-indigo-400 to-violet-600', style: { top: '-6%', right: '4%' }, size: 64, rotate: -12, className: 'hidden sm:flex' },
+    { Icon: Zap, gradient: 'from-amber-300 to-orange-500', style: { top: '2%', right: '2%' }, size: 40, rotate: 14, className: 'flex' },
+    { Icon: TrendingUp, gradient: 'from-emerald-300 to-teal-500', style: { top: '56%', right: '1%' }, size: 50, rotate: 8, className: 'hidden sm:flex' },
+    { Icon: Wallet, gradient: 'from-pink-400 to-rose-500', style: { bottom: '4%', right: '4%' }, size: 42, rotate: -10, className: 'flex' },
+  ];
+  return (
+    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+      {icons.map(({ Icon, gradient, style, size, rotate, className }, i) => (
+        <div
+          key={i}
+          className={`absolute ${className} items-center justify-center rounded-3xl bg-gradient-to-br ${gradient} shadow-xl opacity-90`}
+          style={{ ...style, width: size, height: size, transform: `rotate(${rotate}deg)` }}
+        >
+          <div className="glass-shine" />
+          <Icon size={size * 0.48} strokeWidth={2} className="text-white relative z-10" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Hero() {
   return (
-    <section className="px-6 sm:px-10 max-w-5xl mx-auto pt-10 pb-20">
+    <section className="relative px-6 sm:px-10 max-w-5xl mx-auto pt-10 pb-20">
+      <HeroIcons />
       <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
-        <div>
+        <div className="relative">
           <h1 className="font-display font-extrabold text-[2.6rem] sm:text-5xl leading-[1.08] text-[var(--ink)] mb-6">
             Every link you share can pay you back.
           </h1>
@@ -325,9 +405,9 @@ function ClosingCTA() {
         </div>
 
         <div className="flex items-center gap-2">
-          <a href="/signup" className={`flex-1 text-center px-5 py-3 rounded-full text-sm font-body font-semibold text-white ${BRAND_GRADIENT} shadow-md`}>
+          <CtaButton href="/signup" className="flex-1 text-center px-5 py-3 rounded-full text-sm">
             Get started
-          </a>
+          </CtaButton>
           <a href="/login" className="w-11 h-11 shrink-0 rounded-full glass flex items-center justify-center">
             <ArrowRight size={16} className="text-[var(--ink-soft)]" />
           </a>
