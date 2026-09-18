@@ -13,14 +13,20 @@ import {
 import BrandLogo from './BrandLogo';
 
 const BRAND_GRADIENT = 'bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500';
-// Every button is black & white to match the logo. Styles live in
-// app/globals.css (.btn, .btn-primary, .btn-secondary).
-function CtaButton({ children, className = '', variant, ...props }) {
+// Buttons — styles live in app/globals.css.
+//   glass   : liquid-glass capsule with a soft gradient tint ("Get started")
+//   shorten : black capsule with a rainbow ring, Montserrat ("Shorten")
+//   solid   : plain black capsule
+const BUTTON_VARIANTS = {
+  glass: 'btn-glass font-body',
+  shorten: 'btn-shorten', // brings its own Montserrat font
+  solid: 'btn-primary font-body',
+};
+
+function CtaButton({ variant = 'glass', children, className = '', ...props }) {
   const Comp = props.href ? 'a' : 'button';
-  const variantClass =
-    variant === 'glow' ? 'btn-gradient-glow' : variant === 'ring' ? 'btn-gradient-ring' : '';
   return (
-    <Comp {...props} className={`btn btn-primary font-body ${variantClass} ${className}`}>
+    <Comp {...props} className={`btn ${BUTTON_VARIANTS[variant]} ${className}`}>
       {children}
     </Comp>
   );
@@ -71,7 +77,7 @@ function Nav() {
         <a href="#rates" className="hover:text-[var(--ink)] transition-colors">Rates</a>
         <a href="#payouts" className="hover:text-[var(--ink)] transition-colors">Payouts</a>
       </nav>
-      <CtaButton href="/signup" variant="glow" className="px-6 py-2.5 rounded-full text-sm font-semibold shrink-0">
+      <CtaButton href="/signup" className="px-6 py-2.5 rounded-full text-sm shrink-0">
         Get started
       </CtaButton>
     </header>
@@ -108,32 +114,30 @@ function HeroShortenBar() {
   }
 
   return (
-    <div>
-      <div className="glass-strong rounded-3xl p-3 flex flex-col gap-3 max-w-lg">
+    <div className="font-shorten max-w-md">
+      {/* Shorten box: outlined container → centred pill input → rainbow-ring button */}
+      <div className="shorten-box flex flex-col gap-5">
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="Paste a link to shorten and monetize"
-          className="w-full bg-white/70 border border-black/10 rounded-full px-5 py-3.5 text-sm font-body text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none"
+          onKeyDown={(e) => e.key === 'Enter' && shorten()}
+          placeholder="Paste link"
+          aria-label="Link to shorten"
+          className="shorten-input"
         />
-        <CtaButton
-          onClick={shorten}
-          disabled={busy}
-          variant="ring"
-          className="w-full py-3.5 rounded-full text-sm font-semibold disabled:opacity-60"
-        >
-          {busy ? 'Shortening…' : <>Shorten <ArrowRight size={15} /></>}
+        <CtaButton variant="shorten" onClick={shorten} disabled={busy} className="mx-3 py-3.5 rounded-full text-base">
+          {busy ? 'Shortening…' : 'Shorten'}
         </CtaButton>
       </div>
       {result && (
-        <div className="mt-3 flex items-center gap-2 text-sm font-body text-[var(--ink-soft)]">
+        <div className="mt-3 flex items-center gap-2 text-sm text-[var(--ink-soft)]">
           <a href={result} target="_blank" rel="noopener noreferrer" className="underline">{result}</a>
           <button onClick={() => navigator.clipboard.writeText(result)} aria-label="Copy link" className="btn btn-secondary w-8 h-8 shrink-0 rounded-full">
             <Copy size={14} />
           </button>
         </div>
       )}
-      {error && <p className="mt-3 text-sm font-body text-rose-600">{error}</p>}
+      {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
     </div>
   );
 }
@@ -394,7 +398,7 @@ function ClosingCTA() {
         </div>
 
         <div className="flex items-center gap-2">
-          <CtaButton href="/signup" className="flex-1 text-center px-5 py-3 rounded-full text-sm">
+          <CtaButton href="/signup" className="flex-1 px-6 py-3 rounded-full text-sm">
             Get started
           </CtaButton>
           <a href="/login" aria-label="Log in" className="btn btn-secondary w-11 h-11 shrink-0 rounded-full">
@@ -436,7 +440,7 @@ function Footer() {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative isolate">
       <Nav />
       <Hero />
       <HowItWorks />
