@@ -1,15 +1,16 @@
 // auth-middleware.js
-// TEST-MODE auth. This trusts an `x-user-id` header / cookie so you can
-// exercise the API locally without wiring real login yet. Replace the body
-// of requireAuth/requireAdmin with your real session/JWT check before going
-// anywhere near production.
-
+// Real auth: trusts the signed, httpOnly `req.session.userId` set by
+// server/auth-routes.js on login/signup (see the cookie-session middleware
+// in app.js). Falls back to an `x-user-id` header only when there's no
+// session, purely so the API can still be poked directly with curl/Postman
+// during local development — real browser traffic always goes through the
+// session cookie.
 const crypto = require('crypto');
 const db = require('./db');
 
 async function requireAuth(req, res, next) {
-  const userId = req.headers['x-user-id'] || req.cookies?.userId;
-  if (!userId) return res.status(401).json({ error: 'Not authenticated. Send an x-user-id header for local testing.' });
+  const userId = req.session?.userId || req.headers['x-user-id'] || req.cookies?.userId;
+  if (!userId) return res.status(401).json({ error: 'Not authenticated. Please log in.' });
   const { rows } = await db.query('SELECT id, role, is_banned FROM users WHERE id = $1', [userId]);
   if (!rows[0] || rows[0].is_banned) return res.status(401).json({ error: 'Invalid or banned user.' });
   req.user = rows[0];
