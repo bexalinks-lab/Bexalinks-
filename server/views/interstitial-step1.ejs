@@ -50,6 +50,12 @@
     <% }) %>
   </div>
 
+  <!-- Popunder / Direct Link ads (e.g. an Adsterra Smartlink) don't render
+       anything visible — they just open in a new tab once per page load. -->
+  <% (adSlots || []).filter(a=>a.placement==='popunder').forEach(a => { %>
+    <%- a.script_code %>
+  <% }) %>
+
   <script>
     let remaining = <%= countdownSeconds %>;
     const el = document.getElementById('countdown');

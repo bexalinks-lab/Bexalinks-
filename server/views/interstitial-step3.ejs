@@ -34,6 +34,11 @@
 
   <a id="get-link" class="get-link<%= (countdownSeconds || 0) > 0 ? '' : ' ready' %>" href="<%= goUrl %>" rel="noreferrer noopener">Get Link</a>
 
+  <!-- Popunder / Direct Link ads (e.g. an Adsterra Smartlink). -->
+  <% (adSlots || []).filter(a=>a.placement==='popunder').forEach(a => { %>
+    <%- a.script_code %>
+  <% }) %>
+
   <% if ((countdownSeconds || 0) > 0) { %>
     <script>
       let remaining = <%= countdownSeconds %>;
