@@ -21,7 +21,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import {
   Link2, Wallet, Users, TrendingUp, Copy, Settings, LogOut, LayoutDashboard,
-  RefreshCw, ExternalLink, Search, Check, Share2, AlertCircle,
+  RefreshCw, ExternalLink, Search, Check, Share2, AlertCircle, Shield,
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
@@ -243,6 +243,17 @@ function readHash() {
 }
 
 function Sidebar({ active, onSelect }) {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/auth/me', { credentials: 'same-origin' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (!cancelled && data?.user?.role === 'admin') setIsAdmin(true); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <aside className="w-full sm:w-64 shrink-0 p-3 sm:p-4 sticky top-0 z-30 sm:h-screen">
       <div className="glass rounded-3xl p-3 sm:p-4 flex flex-col gap-2 sm:h-full">
@@ -269,6 +280,17 @@ function Sidebar({ active, onSelect }) {
               {label}
             </button>
           ))}
+          {isAdmin && (
+            <a
+              href="/admin/ads"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-body font-medium whitespace-nowrap shrink-0 text-left text-[var(--ink-soft)] hover:bg-white/30"
+            >
+              <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shrink-0">
+                <Shield size={14} strokeWidth={2} className="text-white" />
+              </span>
+              Admin
+            </a>
+          )}
         </nav>
         <a
           href="/logout"
