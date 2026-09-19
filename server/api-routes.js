@@ -162,4 +162,59 @@ router.post('/admin/payouts/:id/approve', requireAdmin, async (req, res) => {
   res.json(rows[0]);
 });
 
+// ---- AD SLOTS ------------------------------------------------------------
+// Manage the ad units shown on the interstitial ("please wait" / "verify" /
+// "get link") pages (see server/redirect-engine.js -> getActiveAdSlots and
+// server/views/interstitial-step*.ejs). `step` must be one of
+// 'step1_landing', 'step2_verify', 'step3_getlink'; `placement` is whatever
+// the template looks for (e.g. 'banner_top', 'banner_bottom').
+
+const VALID_STEPS = ['step1_landing', 'step2_verify', 'step3_getlink'];
+
+router.get('/admin/ad-slots', requireAdmin, async (req, res) => {
+  const { rows } = await db.query('SELECT * FROM ad_slots ORDER BY step, placement, id');
+  res.json({ adSlots: rows });
+});
+
+router.post('/admin/ad-slots', requireAdmin, async (req, res) => {
+  const { network, step, placement, scriptCode, countryFilter } = req.body || {};
+  if (!network || !placement || !scriptCode) {
+    return res.status(400).json({ error: 'network, placement and scriptCode are required.' });
+  }
+  if (!VALID_STEPS.includes(step)) {
+    return res.status(400).json({ error: `step must be one of: ${VALID_STEPS.join(', ')}` });
+  }
+  const { rows } = await db.query(
+    `INSERT INTO ad_slots (network, step, placement, script_code, country_filter)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [network, step, placement, scriptCode, countryFilter && countryFilter.length ? countryFilter : null]
+  );
+  res.status(201).json(rows[0]);
+});
+
+router.put('/admin/ad-slots/:id', requireAdmin, async (req, res) => {
+  const { network, step, placement, scriptCode, isActive, countryFilter } = req.body || {};
+  if (step && !VALID_STEPS.includes(step)) {
+    return res.status(400).json({ error: `step must be one of: ${VALID_STEPS.join(', ')}` });
+  }
+  const { rows } = await db.query(
+    `UPDATE ad_slots SET
+       network = COALESCE($1, network),
+       step = COALESCE($2, step),
+       placement = COALESCE($3, placement),
+       script_code = COALESCE($4, script_code),
+       is_active = COALESCE($5, is_active),
+       country_filter = COALESCE($6, country_filter)
+     WHERE id = $7 RETURNING *`,
+    [network, step, placement, scriptCode, isActive, countryFilter, req.params.id]
+  );
+  if (!rows[0]) return res.status(404).json({ error: 'Ad slot not found.' });
+  res.json(rows[0]);
+});
+
+router.delete('/admin/ad-slots/:id', requireAdmin, async (req, res) => {
+  await db.query('DELETE FROM ad_slots WHERE id = $1', [req.params.id]);
+  res.json({ success: true });
+});
+
 module.exports = router;
