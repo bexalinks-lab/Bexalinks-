@@ -9,15 +9,45 @@
            display:flex; flex-direction:column; align-items:center; min-height:100vh; padding-top:60px; }
     .banner-slot { width:100%; max-width:728px; min-height:90px; margin:16px 0; display:flex;
                    align-items:center; justify-content:center; background:#16151A; border:1px solid #ffffff14; border-radius:8px; }
+    .timer-box { text-align:center; margin:24px 0; }
+    .timer-num { font-size:40px; font-weight:600; }
+    .timer-label { color:#ffffff66; font-size:13px; margin-top:4px; }
     a.get-link { display:inline-block; margin-top:24px; padding:14px 40px; border-radius:8px; font-weight:700;
-                 text-decoration:none; color:#0B0A0C; background:linear-gradient(90deg,#F7E9B9,#F6C9A0,#F6A8E0); }
+                 text-decoration:none; color:#0B0A0C; background:linear-gradient(90deg,#F7E9B9,#F6C9A0,#F6A8E0);
+                 opacity:.35; pointer-events:none; transition:opacity .2s ease; }
+    a.get-link.ready { opacity:1; pointer-events:auto; }
   </style>
 </head>
 <body>
   <div class="banner-slot">
     <% (adSlots || []).forEach(a => { %><%- a.script_code %><% }) %>
   </div>
+
   <h2>Your link is ready</h2>
-  <a class="get-link" href="<%= goUrl %>" rel="noreferrer noopener">Get Link</a>
+
+  <% if ((countdownSeconds || 0) > 0) { %>
+    <div class="timer-box">
+      <div class="timer-num" id="countdown"><%= countdownSeconds %></div>
+      <div class="timer-label">Preparing your link…</div>
+    </div>
+  <% } %>
+
+  <a id="get-link" class="get-link<%= (countdownSeconds || 0) > 0 ? '' : ' ready' %>" href="<%= goUrl %>" rel="noreferrer noopener">Get Link</a>
+
+  <% if ((countdownSeconds || 0) > 0) { %>
+    <script>
+      let remaining = <%= countdownSeconds %>;
+      const el = document.getElementById('countdown');
+      const link = document.getElementById('get-link');
+      const timer = setInterval(() => {
+        remaining -= 1;
+        if (el) el.textContent = remaining;
+        if (remaining <= 0) {
+          clearInterval(timer);
+          link.classList.add('ready');
+        }
+      }, 1000);
+    </script>
+  <% } %>
 </body>
 </html>
