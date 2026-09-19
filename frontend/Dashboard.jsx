@@ -78,7 +78,6 @@ async function api(url, options) {
   const res = await fetch(url, { credentials: 'same-origin', ...options });
   let data = null;
   try { data = await res.json(); } catch { /* empty / non-JSON body */ }
-  if (res.status === 401 && typeof window !== 'undefined') window.location.href = '/login';
   if (!res.ok) {
     const err = new Error((data && data.error) || `Request failed (${res.status})`);
     err.status = res.status;
@@ -1076,6 +1075,30 @@ function SettingsView({ summary, toast }) {
   );
 }
 
+// Shown when the API says the visitor isn't logged in (HTTP 401), instead of
+// silently bouncing them to another URL.
+function SignedOut() {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="relative w-full max-w-sm p-7 overflow-hidden glass-strong text-center" style={{ borderRadius: 40 }}>
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-200/60 via-sky-100/40 to-pink-100/50" />
+        <div className="flex justify-center mb-5"><BrandLogo href="/" /></div>
+        <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl ${BRAND_GRADIENT} flex items-center justify-center shadow-lg relative overflow-hidden`}>
+          <div className="glass-shine" />
+          <Wallet size={26} className="text-white relative z-10" />
+        </div>
+        <h1 className="font-display font-bold text-2xl text-[var(--ink)] mb-1">You're signed out</h1>
+        <p className="font-body text-sm text-[var(--ink-soft)] mb-6">Log in to see your earnings, links and payouts.</p>
+        <div className="flex gap-2 mb-4">
+          <a href="/login" className="btn btn-primary font-body flex-1 px-5 py-2.5 rounded-full text-sm">Log in</a>
+          <a href="/signup" className="btn btn-secondary font-body flex-1 px-5 py-2.5 rounded-full text-sm">Sign up</a>
+        </div>
+        <a href="/" className="text-xs font-body text-[var(--ink-faint)] hover:text-[var(--ink-soft)]">Back to home</a>
+      </div>
+    </div>
+  );
+}
+
 // ───────────────────────── root ─────────────────────────
 export default function Dashboard() {
   const [tab, setTab] = useState('overview');
@@ -1087,6 +1110,7 @@ export default function Dashboard() {
   const referralsQ = useFetch('/api/dashboard/referrals');
 
   const summary = summaryQ.data && !summaryQ.data.error ? summaryQ.data : null;
+  const signedOut = [summaryQ, linksQ, payoutsQ].some((q) => q.error?.status === 401);
 
   // Keep the active section in the URL hash (#payouts) so refresh / links work.
   useEffect(() => {
@@ -1121,6 +1145,8 @@ export default function Dashboard() {
 
   const refreshAll = useCallback(() => { summaryQ.reload(); linksQ.reload(); }, [summaryQ.reload, linksQ.reload]);
   const loadingSummary = summaryQ.loading && !summary;
+
+  if (signedOut) return <SignedOut />;
 
   return (
     <div className="min-h-screen flex flex-col sm:flex-row">
