@@ -99,6 +99,13 @@ async function recordView({ link, ip, userAgent, referrer }) {
 }
 
 // ---- STEP 1: landing page with countdown + banner ads --------------------
+// Bexalink shows AD_WALL_STAGES sequential "please wait" pages (like
+// ouo.io/shrinkme/linkvertise), each AD_WALL_SECONDS long, before the
+// visitor reaches the human-check page. Configure via env vars; defaults
+// give 3 waits of 15s each.
+
+const WALL_STAGES = Math.max(1, Number(process.env.AD_WALL_STAGES) || 3);
+const WALL_SECONDS = Math.max(3, Number(process.env.AD_WALL_SECONDS) || 15);
 
 router.get('/:code', async (req, res) => {
   const { code } = req.params;
@@ -113,12 +120,41 @@ router.get('/:code', async (req, res) => {
     return res.status(404).render('link-not-found');
   }
 
-  // Record the raw view/impression now (step 1 load = the monetized view).
+  // Record the raw view/impression now (stage 1 load = the monetized view).
+  // Later stages of the same visit do NOT record another view.
   await recordView({ link, ip, userAgent: req.get('user-agent'), referrer: req.get('referer') });
 
   res.render('interstitial-step1', {
     shortCode: link.short_code,
-    countdownSeconds: 10,
+    stage: 1,
+    totalStages: WALL_STAGES,
+    countdownSeconds: WALL_SECONDS,
+    nextUrl: WALL_STAGES > 1 ? `/${link.short_code}/wait/2` : `/${link.short_code}/verify`,
+    adSlots: await getActiveAdSlots('step1_landing', req.geoCountry),
+  });
+});
+
+// Stages 2..N of the same wait wall — same template, same ad slots, just a
+// later position in the sequence so the "N of totalStages" label is right.
+router.get('/:code/wait/:stage', async (req, res) => {
+  const { code } = req.params;
+  const stage = Number(req.params.stage);
+
+  if (!Number.isInteger(stage) || stage < 2 || stage > WALL_STAGES) {
+    return res.redirect(`/${code}`);
+  }
+
+  const link = await resolveLink(code);
+  if (!link || link.status !== 'active') {
+    return res.status(404).render('link-not-found');
+  }
+
+  res.render('interstitial-step1', {
+    shortCode: link.short_code,
+    stage,
+    totalStages: WALL_STAGES,
+    countdownSeconds: WALL_SECONDS,
+    nextUrl: stage < WALL_STAGES ? `/${link.short_code}/wait/${stage + 1}` : `/${link.short_code}/verify`,
     adSlots: await getActiveAdSlots('step1_landing', req.geoCountry),
   });
 });
@@ -169,12 +205,14 @@ router.get('/:code/continue', async (req, res) => {
   const link = await resolveLink(code);
   if (!link) return res.status(404).render('link-not-found');
 
-  // Render a page with a "Get Link" button. The button posts to /go so the
-  // browser's Referer header on the FINAL hop is our own domain's blank page,
-  // never the destination site seeing where the click funnel came from.
+  // Render a page with a countdown, then a "Get Link" button. The button
+  // posts to /go so the browser's Referer header on the FINAL hop is our
+  // own domain's blank page, never the destination site seeing where the
+  // click funnel came from.
   res.render('interstitial-step3', {
     shortCode: link.short_code,
     goUrl: `/${code}/go?t=${t}`,
+    countdownSeconds: WALL_SECONDS,
     adSlots: await getActiveAdSlots('step3_getlink', req.geoCountry),
   });
 });
