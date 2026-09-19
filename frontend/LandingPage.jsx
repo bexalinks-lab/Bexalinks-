@@ -86,52 +86,54 @@ function Nav() {
   }, [open]);
 
   return (
-    <header className="relative z-30 flex items-center justify-between gap-4 px-6 sm:px-10 py-4 max-w-5xl mx-auto">
-      <BrandLogo href="/" />
+    <header className="sticky top-0 z-30 glass-strong" style={{ borderRadius: 0 }}>
+      <div className="relative flex items-center justify-between gap-4 px-6 sm:px-10 py-4 max-w-5xl mx-auto">
+        <BrandLogo href="/" />
 
-      {/* Desktop links */}
-      <nav className="hidden md:flex items-center gap-6 text-sm font-body font-medium text-[var(--ink-soft)]">
-        {NAV_LINKS.map((l) => (
-          <a key={l.href} href={l.href} className="hover:text-[var(--ink)] transition-colors">{l.label}</a>
-        ))}
-        <a href="/login" className="hover:text-[var(--ink)] transition-colors">Log in</a>
-      </nav>
-
-      <div className="flex items-center gap-2 shrink-0">
-        <CtaButton href="/signup" className="px-4 py-2 rounded-full text-[13px]">
-          Get started
-        </CtaButton>
-        {/* Mobile menu button */}
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          className="btn btn-secondary md:hidden w-9 h-9 rounded-full"
-        >
-          {open ? <X size={16} /> : <Menu size={16} />}
-        </button>
-      </div>
-
-      {/* Mobile dropdown */}
-      {open && (
-        <nav
-          id="mobile-menu"
-          className="md:hidden absolute right-6 sm:right-10 top-full mt-1 w-56 glass-strong rounded-3xl p-2 flex flex-col font-body text-sm font-medium text-[var(--ink)]"
-        >
-          {[...NAV_LINKS, { href: '/login', label: 'Log in' }].map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors"
-            >
-              {l.label}
-            </a>
+        {/* Desktop links */}
+        <nav className="hidden md:flex items-center gap-6 text-sm font-body font-medium text-[var(--ink-soft)]">
+          {NAV_LINKS.map((l) => (
+            <a key={l.href} href={l.href} className="hover:text-[var(--ink)] transition-colors">{l.label}</a>
           ))}
+          <a href="/login" className="hover:text-[var(--ink)] transition-colors">Log in</a>
         </nav>
-      )}
+
+        <div className="flex items-center gap-2 shrink-0">
+          <CtaButton href="/signup" className="px-4 py-2 rounded-full text-[13px]">
+            Get started
+          </CtaButton>
+          {/* Mobile menu button */}
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            className="btn btn-secondary md:hidden w-9 h-9 rounded-full"
+          >
+            {open ? <X size={16} /> : <Menu size={16} />}
+          </button>
+        </div>
+
+        {/* Mobile dropdown */}
+        {open && (
+          <nav
+            id="mobile-menu"
+            className="md:hidden absolute right-6 sm:right-10 top-full mt-1 w-56 glass-strong rounded-3xl p-2 flex flex-col font-body text-sm font-medium text-[var(--ink)]"
+          >
+            {[...NAV_LINKS, { href: '/login', label: 'Log in' }].map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors"
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
+        )}
+      </div>
     </header>
   );
 }
