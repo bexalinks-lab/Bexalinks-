@@ -294,3 +294,10 @@ body::before {
   .btn, .btn-glass { transition: none; }
   .btn:active, .btn:hover { transform: none !important; }
 }
+
+/* Smooth-scroll to #how-it-works / #rates / #payouts from the nav. */
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 1rem; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
