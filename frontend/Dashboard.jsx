@@ -244,7 +244,7 @@ function readHash() {
 
 function Sidebar({ active, onSelect }) {
   return (
-    <aside className="w-full sm:w-64 shrink-0 p-3 sm:p-4 sm:sticky sm:top-0 sm:h-screen">
+    <aside className="w-full sm:w-64 shrink-0 p-3 sm:p-4 sticky top-0 z-30 sm:h-screen">
       <div className="glass rounded-3xl p-3 sm:p-4 flex flex-col gap-2 sm:h-full">
         <div className="flex items-center justify-between px-2 py-1 sm:mb-4">
           <BrandLogo size="sm" href="/" />
@@ -260,7 +260,7 @@ function Sidebar({ active, onSelect }) {
               onClick={() => onSelect(key)}
               aria-current={active === key ? 'page' : undefined}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-body font-medium transition-colors whitespace-nowrap shrink-0 text-left ${
-                active === key ? 'glass-strong text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:bg-white/30'
+                active === key ? 'bg-white/70 backdrop-blur-md text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:bg-white/30'
               }`}
             >
               <span className={`w-7 h-7 rounded-lg ${gradient} flex items-center justify-center shrink-0`}>
@@ -399,34 +399,41 @@ function QuickShortener({ onCreated, toast }) {
   return (
     <div className="glass rounded-3xl p-5 mb-6 font-shorten">
       <p className="text-sm font-semibold text-[var(--ink)] mb-3">Shorten a new link</p>
-      <form onSubmit={shorten} className="flex flex-col sm:flex-row gap-3">
-        <input
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://your-long-destination-url.com/..."
-          aria-label="Destination URL"
-          className="flex-1 bg-white/50 border border-white/60 rounded-full px-5 py-2.5 text-base sm:text-sm font-shorten text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        />
-        <input
-          value={alias}
-          onChange={(e) => setAlias(e.target.value)}
-          placeholder="custom-alias (optional)"
-          aria-label="Custom alias"
-          className="sm:w-56 bg-white/50 border border-white/60 rounded-full px-5 py-2.5 text-base sm:text-sm font-shorten text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        />
-        <button type="submit" disabled={busy || !url.trim()} className="btn btn-shorten px-8 py-2.5 rounded-full text-sm">
+      <form onSubmit={shorten} className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://your-long-destination-url.com/..."
+            aria-label="Destination URL"
+            className="flex-1 bg-white/50 border border-white/60 rounded-full px-5 py-2.5 text-base sm:text-sm font-shorten text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+          <input
+            value={alias}
+            onChange={(e) => setAlias(e.target.value)}
+            placeholder="custom-alias (optional)"
+            aria-label="Custom alias"
+            className="sm:w-56 bg-white/50 border border-white/60 rounded-full px-5 py-2.5 text-base sm:text-sm font-shorten text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+        </div>
+
+        {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
+
+        {result && !error && (
+          <div className="flex items-center gap-2 bg-white/60 border border-white/70 rounded-full pl-5 pr-2 py-2 text-sm min-w-0">
+            <a href={result} target="_blank" rel="noopener noreferrer" className="flex-1 underline truncate text-[var(--ink)] font-medium">
+              {result}
+            </a>
+            <button type="button" onClick={copy} aria-label="Copy link" className="btn btn-secondary w-8 h-8 shrink-0 rounded-full">
+              <Copy size={14} />
+            </button>
+          </div>
+        )}
+
+        <button type="submit" disabled={busy || !url.trim()} className="btn btn-shorten px-8 py-2.5 rounded-full text-sm self-stretch sm:self-start">
           {busy ? 'Creating…' : 'Shorten'}
         </button>
       </form>
-      {error && <p role="alert" className="mt-3 text-sm text-rose-600">{error}</p>}
-      {result && !error && (
-        <div className="mt-3 flex items-center gap-2 text-sm text-[var(--ink-soft)] min-w-0">
-          <a href={result} target="_blank" rel="noopener noreferrer" className="underline truncate">{result}</a>
-          <button type="button" onClick={copy} aria-label="Copy link" className="btn btn-secondary w-8 h-8 shrink-0 rounded-full">
-            <Copy size={14} />
-          </button>
-        </div>
-      )}
     </div>
   );
 }
