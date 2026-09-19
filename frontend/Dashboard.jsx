@@ -259,8 +259,8 @@ function Sidebar({ active, onSelect }) {
               type="button"
               onClick={() => onSelect(key)}
               aria-current={active === key ? 'page' : undefined}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-body font-medium transition-colors whitespace-nowrap shrink-0 text-left border ${
-                active === key ? 'bg-white/70 backdrop-blur-md text-[var(--ink)] border-black/20' : 'text-[var(--ink-soft)] border-black/10 hover:bg-white/30'
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-body font-medium transition-colors whitespace-nowrap shrink-0 text-left border-2 border-black ${
+                active === key ? 'bg-white/70 backdrop-blur-md text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:bg-white/30'
               }`}
             >
               <span className={`w-7 h-7 rounded-lg ${gradient} flex items-center justify-center shrink-0`}>
