@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import {
-  ArrowRight, Globe2, Link2, ShieldCheck, Wallet, Users, Copy, Zap, TrendingUp,
+  ArrowRight, Globe2, Link2, ShieldCheck, Wallet, Users, Copy,
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
@@ -77,7 +77,7 @@ function Nav() {
         <a href="#rates" className="hover:text-[var(--ink)] transition-colors">Rates</a>
         <a href="#payouts" className="hover:text-[var(--ink)] transition-colors">Payouts</a>
       </nav>
-      <CtaButton href="/signup" className="px-6 py-2.5 rounded-full text-sm shrink-0">
+      <CtaButton href="/signup" className="px-4 py-2 rounded-full text-[13px] shrink-0">
         Get started
       </CtaButton>
     </header>
@@ -121,11 +121,11 @@ function HeroShortenBar() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && shorten()}
-          placeholder="Paste link"
+          placeholder="Paste a link to shorten and monetize"
           aria-label="Link to shorten"
           className="shorten-input"
         />
-        <CtaButton variant="shorten" onClick={shorten} disabled={busy} className="mx-3 py-3.5 rounded-full text-base">
+        <CtaButton variant="shorten" onClick={shorten} disabled={busy} className="mx-3 py-2 rounded-full text-[15px]">
           {busy ? 'Shortening…' : 'Shorten'}
         </CtaButton>
       </div>
@@ -153,36 +153,9 @@ function WidgetStat({ label, value, sublabel, gradient }) {
   );
 }
 
-// Big glossy 3D icon badges scattered behind the headline — link/money
-// themed, kept behind the text (-z-10) so they peek through the gaps
-// around the bold letters rather than sit on top of them.
-function HeroIcons() {
-  const icons = [
-    { Icon: Link2, gradient: 'from-indigo-400 to-violet-600', style: { top: '-4%', right: '2%' }, size: 68, rotate: -14 },
-    { Icon: Zap, gradient: 'from-amber-300 to-orange-500', style: { top: '20%', right: '20%' }, size: 46, rotate: 16 },
-    { Icon: TrendingUp, gradient: 'from-emerald-300 to-teal-500', style: { top: '38%', right: '4%' }, size: 58, rotate: 10 },
-    { Icon: Wallet, gradient: 'from-pink-400 to-rose-500', style: { top: '58%', right: '24%' }, size: 50, rotate: -12 },
-  ];
-  return (
-    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-      {icons.map(({ Icon, gradient, style, size, rotate }, i) => (
-        <div
-          key={i}
-          className={`absolute flex items-center justify-center rounded-3xl bg-gradient-to-br ${gradient} shadow-xl opacity-95`}
-          style={{ ...style, width: size, height: size, transform: `rotate(${rotate}deg)` }}
-        >
-          <div className="glass-shine" />
-          <Icon size={size * 0.48} strokeWidth={2} className="text-white relative z-10" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function Hero() {
   return (
     <section className="relative px-6 sm:px-10 max-w-5xl mx-auto pt-10 pb-20">
-      <HeroIcons />
       <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
         <div className="relative">
           <h1 className="font-display font-extrabold text-[2.6rem] sm:text-5xl leading-[1.08] text-[var(--ink)] mb-6">
@@ -398,7 +371,7 @@ function ClosingCTA() {
         </div>
 
         <div className="flex items-center gap-2">
-          <CtaButton href="/signup" className="flex-1 px-6 py-3 rounded-full text-sm">
+          <CtaButton href="/signup" className="flex-1 px-5 py-2.5 rounded-full text-[13px]">
             Get started
           </CtaButton>
           <a href="/login" aria-label="Log in" className="btn btn-secondary w-11 h-11 shrink-0 rounded-full">
