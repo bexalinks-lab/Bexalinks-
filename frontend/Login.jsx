@@ -10,10 +10,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Wallet } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
-const BRAND_GRADIENT = 'bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500';
 const INPUT =
   'w-full bg-white/60 border border-white/70 rounded-2xl px-4 py-2.5 text-base sm:text-sm font-body ' +
   'text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400';
@@ -71,10 +69,13 @@ export default function Login() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-200/60 via-sky-100/40 to-pink-100/50" />
 
         <div className="flex justify-center mb-5"><BrandLogo href="/" /></div>
-        <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl ${BRAND_GRADIENT} flex items-center justify-center shadow-lg relative overflow-hidden`}>
-          <div className="glass-shine" />
-          <Wallet size={26} className="text-white relative z-10" />
+        <div className="w-16 h-16 mx-auto mb-2 rounded-2xl overflow-hidden flex items-center justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Bexa Network" className="w-full h-full object-contain" />
         </div>
+        <p className="text-center text-[11px] font-body tracking-wide uppercase text-[var(--ink-faint)] mb-4">
+          Powered by Bexa Network
+        </p>
 
         <h1 className="font-display font-bold text-2xl text-[var(--ink)] mb-1 text-center">Welcome back</h1>
         <p className="font-body text-sm text-[var(--ink-soft)] mb-6 text-center">Log in to see your earnings, links and payouts.</p>
