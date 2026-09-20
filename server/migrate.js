@@ -41,6 +41,15 @@ async function runMigrations() {
   } catch (err) {
     console.error('[migrate] Could not check/create default test user:', err.message);
   }
+
+  // The dashboard's Payouts tab offers PayPal / Payoneer / Bank / USDT / UPI,
+  // but the original payout_method enum only had 4 values with no
+  // 'payoneer'. Add it if it's missing (safe to run every deploy).
+  try {
+    await db.query(`ALTER TYPE payout_method ADD VALUE IF NOT EXISTS 'payoneer'`);
+  } catch (err) {
+    console.error('[migrate] Could not add "payoneer" to payout_method enum:', err.message);
+  }
 }
 
 module.exports = { runMigrations };
