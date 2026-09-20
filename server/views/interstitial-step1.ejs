@@ -6,12 +6,14 @@
   <title>Please wait — Bexalink</title>
   <style>
     body { margin:0; background:#0B0A0C; color:#fff; font-family:-apple-system,Segoe UI,Inter,sans-serif;
-           display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+           display:flex; flex-direction:column; align-items:center; min-height:100vh; overflow-x:hidden; }
     .brand { font-style:italic; font-size:22px; margin:24px 0 8px;
              background:linear-gradient(90deg,#F7E9B9,#F6C9A0,#F6A8E0); -webkit-background-clip:text; color:transparent; }
     .stage-label { color:#ffffff55; font-size:12px; letter-spacing:.04em; text-transform:uppercase; margin-bottom:8px; }
-    .banner-slot { width:100%; max-width:728px; min-height:90px; margin:16px 0; display:flex;
-                   align-items:center; justify-content:center; background:#16151A; border:1px solid #ffffff14; border-radius:8px; }
+    .banner-slot { width:100%; max-width:728px; min-height:90px; margin:16px 0; padding:12px; box-sizing:border-box;
+                   display:flex; flex-direction:column; align-items:center; gap:14px;
+                   background:#16151A; border:1px solid #ffffff14; border-radius:8px; overflow:hidden; }
+    .banner-slot > * { max-width:100%; box-sizing:border-box; }
     .timer-box { text-align:center; margin:32px 0; }
     .timer-num { font-size:48px; font-weight:600; }
     .timer-label { color:#ffffff66; font-size:13px; margin-top:4px; }
@@ -34,7 +36,7 @@
 
   <div class="timer-box">
     <div class="timer-num" id="countdown"><%= countdownSeconds %></div>
-    <div class="timer-label">Your link will unlock in a few seconds</div>
+    <div class="timer-label">Verification in progress — please don't close this window</div>
     <% if ((totalStages || 1) > 1) { %>
       <div class="dots">
         <% for (let i = 1; i <= totalStages; i++) { %>
