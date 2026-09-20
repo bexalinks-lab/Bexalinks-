@@ -68,10 +68,26 @@ router.patch('/links/:id', requireAuth, async (req, res) => {
 
 // ---- DASHBOARD STATS --------------------------------------------------------
 
+// Balance actually available to withdraw: everything earned so far, minus
+// anything already requested (pending/approved/paid) — NOT just "paid".
+// This is what makes repeat payouts work correctly instead of the balance
+// getting stuck at $0 forever after the very first payout.
+async function getAvailableBalanceCents(userId) {
+  const { rows } = await db.query(
+    `SELECT
+       COALESCE((SELECT SUM(earnings_cents) FROM daily_earnings WHERE user_id = $1), 0)
+       + COALESCE((SELECT SUM(commission_cents) FROM referral_earnings WHERE referrer_id = $1), 0)
+       - COALESCE((SELECT SUM(amount_cents) FROM payouts WHERE user_id = $1 AND status IN ('pending','approved','paid')), 0)
+       AS available_cents`,
+    [userId]
+  );
+  return Math.max(0, Number(rows[0].available_cents));
+}
+
 router.get('/dashboard/summary', requireAuth, async (req, res) => {
   const userId = req.user.id;
 
-  const [todayRow, allTimeRow, referralRow, pendingPayout] = await Promise.all([
+  const [todayRow, allTimeRow, referralRow, availableCents] = await Promise.all([
     db.query(
       `SELECT COALESCE(SUM(views),0) AS views, COALESCE(SUM(earnings_cents),0) AS earnings_cents
        FROM daily_earnings WHERE user_id = $1 AND day = CURRENT_DATE`, [userId]
@@ -85,13 +101,7 @@ router.get('/dashboard/summary', requireAuth, async (req, res) => {
       `SELECT COALESCE(SUM(commission_cents),0) AS commission_cents
        FROM referral_earnings WHERE referrer_id = $1`, [userId]
     ),
-    db.query(
-      `SELECT COALESCE(SUM(earnings_cents),0) AS unpaid_cents
-       FROM daily_earnings de
-       WHERE de.user_id = $1
-         AND NOT EXISTS (SELECT 1 FROM payouts p WHERE p.user_id = $1 AND p.status = 'paid')`,
-      [userId]
-    ),
+    getAvailableBalanceCents(userId),
   ]);
 
   res.json({
@@ -102,7 +112,7 @@ router.get('/dashboard/summary', requireAuth, async (req, res) => {
       avgCpm: allTimeRow.rows[0].avg_cpm_cents / 100,
     },
     referralEarnings: referralRow.rows[0].commission_cents / 100,
-    availableBalance: pendingPayout.rows[0].unpaid_cents / 100,
+    availableBalance: availableCents / 100,
   });
 });
 
@@ -117,19 +127,105 @@ router.get('/dashboard/links', requireAuth, async (req, res) => {
 });
 
 // ---- PAYOUTS -----------------------------------------------------------------
+// Matches the contract frontend/Dashboard.jsx's PayoutsView actually uses:
+//   GET  /api/payouts  -> [{ id, amount, method, account, network, status, created_at }]
+//   POST /api/payouts  { amount, method, account, network? }
+// A payout "method" the user hasn't used before is saved as a new row in
+// payment_methods (so it shows up again next time); reusing the same
+// method + account just reuses that row instead of creating duplicates.
+
+const PAYOUT_METHOD_KEYS = ['paypal', 'payoneer', 'bank', 'usdt', 'upi'];
+
+// The dashboard's method keys don't all match the payment_methods.method
+// DB enum (payout_method: 'upi' | 'bank_transfer' | 'paypal' | 'crypto' |
+// 'payoneer') — map both ways so the frontend never has to know about it.
+const METHOD_TO_DB = { paypal: 'paypal', payoneer: 'payoneer', bank: 'bank_transfer', usdt: 'crypto', upi: 'upi' };
+const METHOD_FROM_DB = { paypal: 'paypal', payoneer: 'payoneer', bank_transfer: 'bank', crypto: 'usdt', upi: 'upi' };
+
+router.get('/payouts', requireAuth, async (req, res) => {
+  const { rows } = await db.query(
+    `SELECT p.id, p.amount_cents, p.status, p.requested_at, p.processed_at,
+            pm.method, pm.details
+     FROM payouts p
+     JOIN payment_methods pm ON pm.id = p.payment_method_id
+     WHERE p.user_id = $1
+     ORDER BY p.requested_at DESC
+     LIMIT 100`,
+    [req.user.id]
+  );
+  res.json(rows.map((r) => ({
+    id: r.id,
+    amount: r.amount_cents / 100,
+    method: METHOD_FROM_DB[r.method] || r.method,
+    account: r.details?.account,
+    network: r.details?.network,
+    status: r.status,
+    created_at: r.requested_at,
+    processed_at: r.processed_at,
+  })));
+});
 
 router.post('/payouts', requireAuth, async (req, res) => {
-  const { amountCents, paymentMethodId } = req.body;
-  const MIN_PAYOUT_CENTS = 500;
-  if (amountCents < MIN_PAYOUT_CENTS) {
+  const { amount, method, account, network } = req.body || {};
+  const userId = req.user.id;
+
+  const amountCents = Math.round(Number(amount) * 100);
+  if (!Number.isFinite(amountCents) || amountCents <= 0) {
+    return res.status(400).json({ error: 'Enter a valid amount.' });
+  }
+  if (amountCents < 500) {
     return res.status(400).json({ error: 'Minimum payout is $5.00.' });
   }
-  const { rows } = await db.query(
-    `INSERT INTO payouts (user_id, payment_method_id, amount_cents)
-     VALUES ($1, $2, $3) RETURNING id, status, requested_at`,
-    [req.user.id, paymentMethodId, amountCents]
-  );
-  res.status(201).json(rows[0]);
+  if (!PAYOUT_METHOD_KEYS.includes(method)) {
+    return res.status(400).json({ error: 'Unknown payout method.' });
+  }
+  if (!account || !String(account).trim()) {
+    return res.status(400).json({ error: 'Payout account details are required.' });
+  }
+
+  try {
+    const availableCents = await getAvailableBalanceCents(userId);
+    if (amountCents > availableCents) {
+      return res.status(400).json({ error: `You only have $${(availableCents / 100).toFixed(2)} available.` });
+    }
+
+    const dbMethod = METHOD_TO_DB[method];
+    const details = { account: String(account).trim(), ...(network ? { network } : {}) };
+    const detailsJson = JSON.stringify(details);
+
+    // Reuse an existing identical payment method for this user, else create one.
+    const existing = await db.query(
+      `SELECT id FROM payment_methods WHERE user_id = $1 AND method = $2 AND details = $3::jsonb LIMIT 1`,
+      [userId, dbMethod, detailsJson]
+    );
+    let paymentMethodId = existing.rows[0]?.id;
+    if (!paymentMethodId) {
+      const inserted = await db.query(
+        `INSERT INTO payment_methods (user_id, method, details) VALUES ($1, $2, $3::jsonb) RETURNING id`,
+        [userId, dbMethod, detailsJson]
+      );
+      paymentMethodId = inserted.rows[0].id;
+    }
+
+    const { rows } = await db.query(
+      `INSERT INTO payouts (user_id, payment_method_id, amount_cents)
+       VALUES ($1, $2, $3) RETURNING id, status, requested_at`,
+      [userId, paymentMethodId, amountCents]
+    );
+
+    res.status(201).json({
+      id: rows[0].id,
+      amount: amountCents / 100,
+      method,
+      account: details.account,
+      network: details.network,
+      status: rows[0].status,
+      created_at: rows[0].requested_at,
+    });
+  } catch (err) {
+    console.error('[payouts/create]', err);
+    res.status(500).json({ error: 'Could not request the payout. Please try again.' });
+  }
 });
 
 // ---- ADMIN -------------------------------------------------------------------
@@ -154,11 +250,56 @@ router.post('/admin/users/:id/ban', requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
+router.get('/admin/payouts', requireAdmin, async (req, res) => {
+  const { rows } = await db.query(
+    `SELECT p.id, p.amount_cents, p.status, p.requested_at, p.processed_at,
+            u.email, u.display_name, pm.method, pm.details
+     FROM payouts p
+     JOIN users u ON u.id = p.user_id
+     JOIN payment_methods pm ON pm.id = p.payment_method_id
+     ORDER BY p.requested_at DESC
+     LIMIT 200`
+  );
+  res.json(rows.map((r) => ({
+    id: r.id,
+    amount: r.amount_cents / 100,
+    status: r.status,
+    email: r.email,
+    displayName: r.display_name,
+    method: METHOD_FROM_DB[r.method] || r.method,
+    account: r.details?.account,
+    network: r.details?.network,
+    created_at: r.requested_at,
+    processed_at: r.processed_at,
+  })));
+});
+
 router.post('/admin/payouts/:id/approve', requireAdmin, async (req, res) => {
   const { rows } = await db.query(
     `UPDATE payouts SET status = 'approved', processed_by = $1, processed_at = now()
      WHERE id = $2 RETURNING *`, [req.user.id, req.params.id]
   );
+  res.json(rows[0]);
+});
+
+// Mark as actually sent — call this once the money has genuinely been sent
+// through PayPal/bank/etc. Doing this manually (no auto-payout integration)
+// is the normal way small platforms run payouts.
+router.post('/admin/payouts/:id/mark-paid', requireAdmin, async (req, res) => {
+  const { rows } = await db.query(
+    `UPDATE payouts SET status = 'paid', processed_by = $1, processed_at = now()
+     WHERE id = $2 RETURNING *`, [req.user.id, req.params.id]
+  );
+  if (!rows[0]) return res.status(404).json({ error: 'Payout not found.' });
+  res.json(rows[0]);
+});
+
+router.post('/admin/payouts/:id/reject', requireAdmin, async (req, res) => {
+  const { rows } = await db.query(
+    `UPDATE payouts SET status = 'rejected', admin_note = $1, processed_by = $2, processed_at = now()
+     WHERE id = $3 RETURNING *`, [req.body?.reason || null, req.user.id, req.params.id]
+  );
+  if (!rows[0]) return res.status(404).json({ error: 'Payout not found.' });
   res.json(rows[0]);
 });
 
