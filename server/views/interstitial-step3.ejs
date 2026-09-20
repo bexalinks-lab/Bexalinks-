@@ -5,17 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Your link is ready — Bexalink</title>
   <style>
-    body { margin:0; background:#0B0A0C; color:#fff; font-family:-apple-system,Segoe UI,Inter,sans-serif;
-           display:flex; flex-direction:column; align-items:center; min-height:100vh; padding-top:60px; overflow-x:hidden; }
-    .banner-slot { width:100%; max-width:728px; min-height:90px; margin:16px 0; padding:12px; box-sizing:border-box;
+    :root { --ink: #1d1b2e; --ink-soft: #6b687a; --ink-faint: #9490a0; }
+    * { box-sizing: border-box; }
+    body {
+      margin:0; min-height:100vh; overflow-x:hidden;
+      font-family:-apple-system,Segoe UI,Inter,sans-serif; color:var(--ink);
+      display:flex; flex-direction:column; align-items:center; padding:40px 16px 48px;
+      background: linear-gradient(160deg, #e9e6ff 0%, #eef4ff 45%, #ffeef5 100%);
+    }
+    .banner-slot { width:100%; max-width:520px; min-height:70px; margin:12px 0; padding:14px; overflow:hidden;
                    display:flex; flex-direction:column; align-items:center; gap:14px;
-                   background:#16151A; border:1px solid #ffffff14; border-radius:8px; overflow:hidden; }
+                   background:rgba(255,255,255,0.7); backdrop-filter:blur(10px);
+                   border:1px solid rgba(255,255,255,0.9); border-radius:24px;
+                   box-shadow: 0 8px 32px rgba(29,27,46,0.08); }
     .banner-slot > * { max-width:100%; box-sizing:border-box; }
-    .timer-box { text-align:center; margin:24px 0; }
-    .timer-num { font-size:40px; font-weight:600; }
-    .timer-label { color:#ffffff66; font-size:13px; margin-top:4px; }
-    a.get-link { display:inline-block; margin-top:24px; padding:14px 40px; border-radius:8px; font-weight:700;
-                 text-decoration:none; color:#0B0A0C; background:linear-gradient(90deg,#F7E9B9,#F6C9A0,#F6A8E0);
+    h2 { font-size:22px; font-weight:800; margin:24px 0 4px; }
+    .timer-card { width:100%; max-width:520px; text-align:center; margin:16px 0; padding:24px 20px;
+                  background:rgba(255,255,255,0.75); backdrop-filter:blur(10px);
+                  border:1px solid rgba(255,255,255,0.9); border-radius:28px;
+                  box-shadow: 0 12px 40px rgba(29,27,46,0.10); }
+    .timer-num { font-size:44px; font-weight:800;
+                 background:linear-gradient(90deg,#6366f1,#8b5cf6,#ec4899); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .timer-label { color:var(--ink-soft); font-size:13px; margin-top:4px; font-weight:500; }
+    a.get-link { display:inline-block; margin-top:20px; padding:16px 44px; border-radius:999px; font-weight:700; font-size:15px;
+                 text-decoration:none; color:#fff; background:#151220; box-shadow:0 8px 20px rgba(21,18,32,0.25);
                  opacity:.35; pointer-events:none; transition:opacity .2s ease; }
     a.get-link.ready { opacity:1; pointer-events:auto; }
   </style>
@@ -28,7 +41,7 @@
   <h2>Your link is ready</h2>
 
   <% if ((countdownSeconds || 0) > 0) { %>
-    <div class="timer-box">
+    <div class="timer-card">
       <div class="timer-num" id="countdown"><%= countdownSeconds %></div>
       <div class="timer-label">Preparing your link…</div>
     </div>
