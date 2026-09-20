@@ -281,15 +281,26 @@ function Sidebar({ active, onSelect }) {
             </button>
           ))}
           {isAdmin && (
-            <a
-              href="/admin/ads"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-body font-medium whitespace-nowrap shrink-0 text-left text-[var(--ink-soft)] hover:bg-white/30"
-            >
-              <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shrink-0">
-                <Shield size={14} strokeWidth={2} className="text-white" />
-              </span>
-              Admin
-            </a>
+            <>
+              <a
+                href="/admin/ads"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-body font-medium whitespace-nowrap shrink-0 text-left text-[var(--ink-soft)] hover:bg-white/30"
+              >
+                <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shrink-0">
+                  <Shield size={14} strokeWidth={2} className="text-white" />
+                </span>
+                Ads
+              </a>
+              <a
+                href="/admin/payouts"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-body font-medium whitespace-nowrap shrink-0 text-left text-[var(--ink-soft)] hover:bg-white/30"
+              >
+                <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shrink-0">
+                  <Shield size={14} strokeWidth={2} className="text-white" />
+                </span>
+                Payouts (admin)
+              </a>
+            </>
           )}
         </nav>
         <a
