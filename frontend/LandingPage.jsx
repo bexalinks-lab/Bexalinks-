@@ -551,7 +551,7 @@ function Payouts() {
           <PayoutCard key={m.name} {...m} />
         ))}
       </div>
-      <p className="text-xs font-body text-[var(--ink-faint)] mt-2 sm:hidden">← swipe →</p>
+      <p className="text-xs font-body text-[var(--ink-faint)] mt-2 text-center sm:hidden">← swipe →</p>
     </section>
   );
 }
