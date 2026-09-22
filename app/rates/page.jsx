@@ -1,3 +1,4 @@
+import { DollarSign, Clock3, CalendarClock, Wallet2 } from 'lucide-react';
 import { StaticHeader, StaticFooter } from '../../frontend/StaticPageChrome';
 
 export const metadata = {
@@ -14,6 +15,33 @@ const RATES = [
   { country: 'Global average', cpm: 2.9, flag: '🌍' },
 ];
 
+const PAYOUT_POINTS = [
+  {
+    icon: DollarSign,
+    gradient: 'bg-indigo-500',
+    title: '$5 minimum, on any method',
+    text: 'Once your balance clears $5, you can cash out — no higher thresholds hiding behind different payout options.',
+  },
+  {
+    icon: Clock3,
+    gradient: 'bg-emerald-500',
+    title: 'Same-day, most of the time',
+    text: 'Withdrawal requests are reviewed by our team and typically paid out the same day. Weekends can occasionally add a short delay.',
+  },
+  {
+    icon: CalendarClock,
+    gradient: 'bg-amber-500',
+    title: 'No fixed payout cycle',
+    text: "Request a withdrawal whenever you want, 24/7 — you're never stuck waiting for a weekly or monthly cutoff.",
+  },
+  {
+    icon: Wallet2,
+    gradient: 'bg-pink-500',
+    title: '5 ways to get paid',
+    text: 'PayPal, Payoneer, bank transfer, USDT, or UPI — pick whichever is easiest to use where you live.',
+  },
+];
+
 export default function RatesPage() {
   return (
     <>
@@ -27,7 +55,7 @@ export default function RatesPage() {
           for every country sending you traffic.
         </p>
 
-        <div className="glass rounded-3xl px-6 py-2 mb-6">
+        <div className="glass rounded-3xl px-6 py-2 mb-14">
           {RATES.map((r) => (
             <div key={r.country} className="flex items-center justify-between py-3 border-b border-white/40 last:border-0">
               <span className="font-body text-sm text-[var(--ink)] flex items-center gap-2">
@@ -39,11 +67,23 @@ export default function RatesPage() {
           ))}
         </div>
 
-        <div className="glass rounded-3xl px-6 py-5 flex flex-col gap-3 font-body text-sm text-[var(--ink-soft)]">
-          <p>→ Minimum withdrawal is <strong className="text-[var(--ink)]">$5</strong>, on any method.</p>
-          <p>→ Requests are reviewed and paid out by our team — most land <strong className="text-[var(--ink)]">the same day</strong>, weekends can take a little longer.</p>
-          <p>→ Request a withdrawal <strong className="text-[var(--ink)]">anytime, 24/7</strong> — no fixed payout cycle to wait for.</p>
-          <p>→ <strong className="text-[var(--ink)]">5 payout methods</strong> supported: PayPal, Payoneer, Bank transfer, USDT, UPI.</p>
+        <h2 className="font-display font-bold text-2xl sm:text-3xl text-[var(--ink)] mb-2">How payouts work.</h2>
+        <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed max-w-lg mb-8">
+          Straightforward, on purpose — no tiers to unlock, no surprise deductions.
+        </p>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          {PAYOUT_POINTS.map((p) => (
+            <div key={p.title} className="glass rounded-3xl p-6 flex gap-4">
+              <span className={`shrink-0 w-11 h-11 rounded-2xl ${p.gradient} flex items-center justify-center`}>
+                <p.icon size={18} className="text-white" />
+              </span>
+              <div>
+                <h3 className="font-body text-[var(--ink)] text-sm font-bold mb-1.5">{p.title}</h3>
+                <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed">{p.text}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </main>
       <StaticFooter />
