@@ -207,6 +207,63 @@ function WidgetStat({ label, value, sublabel, gradient }) {
   );
 }
 
+function useCountUp(target, duration = 1200) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (target == null) return;
+    let start = null;
+    let raf;
+    const step = (ts) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(target * eased));
+      if (progress < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return value;
+}
+
+function StatsSection() {
+  const [stats, setStats] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/public/stats')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { if (!cancelled) setStats(data); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  const paid = useCountUp(stats?.totalPaid);
+  const users = useCountUp(stats?.totalUsers);
+  const views = useCountUp(stats?.totalViews);
+  const links = useCountUp(stats?.totalLinks);
+
+  const items = [
+    { label: 'Total paid out', value: stats ? `$${paid.toLocaleString()}` : '—', gradient: 'bg-violet-500' },
+    { label: 'Publishers', value: stats ? users.toLocaleString() : '—', gradient: 'bg-emerald-500' },
+    { label: 'Views tracked', value: stats ? views.toLocaleString() : '—', gradient: 'bg-amber-500' },
+    { label: 'Links shortened', value: stats ? links.toLocaleString() : '—', gradient: 'bg-rose-500' },
+  ];
+
+  return (
+    <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {items.map((it) => (
+          <WidgetStat key={it.label} label={it.label} value={it.value} gradient={it.gradient} />
+        ))}
+      </div>
+      <p className="text-center text-xs font-body text-[var(--ink-faint)] mt-4">
+        Payouts available via {stats?.payoutMethods || 5} methods — PayPal, Payoneer, Bank transfer, USDT, UPI
+      </p>
+    </section>
+  );
+}
+
 function Hero() {
   return (
     <section className="relative px-6 sm:px-10 max-w-5xl mx-auto pt-10 pb-20">
@@ -548,6 +605,7 @@ export default function LandingPage() {
     <div className="min-h-screen relative isolate">
       <Nav />
       <Hero />
+      <StatsSection />
       <HowItWorks />
       <Features />
       <Rates />
