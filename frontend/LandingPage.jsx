@@ -383,10 +383,13 @@ function Features() {
   );
 }
 
-function RateRow({ country, cpm }) {
+function RateRow({ country, cpm, flag }) {
   return (
     <div className="flex items-center justify-between py-3 border-b border-white/40 last:border-0">
-      <span className="font-body text-sm text-[var(--ink)]">{country}</span>
+      <span className="font-body text-sm text-[var(--ink)] flex items-center gap-2">
+        {flag && <span className="text-lg" aria-hidden="true">{flag}</span>}
+        {country}
+      </span>
       <span className="font-display font-semibold text-sm text-[var(--ink)]">${cpm.toFixed(2)}</span>
     </div>
   );
@@ -404,12 +407,12 @@ function Rates() {
         </p>
       </div>
       <div className="glass rounded-3xl px-6 py-2">
-        <RateRow country="United States" cpm={6.2} />
-        <RateRow country="United Kingdom" cpm={5.4} />
-        <RateRow country="Germany" cpm={5.1} />
-        <RateRow country="India" cpm={1.3} />
-        <RateRow country="Brazil" cpm={1.6} />
-        <RateRow country="Global average" cpm={2.9} />
+        <RateRow country="United States" cpm={6.2} flag="🇺🇸" />
+        <RateRow country="United Kingdom" cpm={5.4} flag="🇬🇧" />
+        <RateRow country="Germany" cpm={5.1} flag="🇩🇪" />
+        <RateRow country="India" cpm={1.3} flag="🇮🇳" />
+        <RateRow country="Brazil" cpm={1.6} flag="🇧🇷" />
+        <RateRow country="Global average" cpm={2.9} flag="🌍" />
       </div>
     </section>
   );
@@ -441,6 +444,8 @@ const TESTIMONIALS = [
 function Testimonial() {
   return (
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
+      <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">Hear from our users.</h2>
+      <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">See what our users have to say about their experience with Bexalink.</p>
       <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 sm:mx-0 px-6 sm:px-0" style={{ scrollbarWidth: 'none' }}>
         {TESTIMONIALS.map((t) => (
           <div
@@ -523,7 +528,7 @@ const PAYOUT_METHODS = [
 
 function PayoutCard({ name, note, Logo, src }) {
   return (
-    <div className="glass rounded-3xl p-4 sm:p-5 flex sm:flex-col items-center sm:items-start gap-4 transition-transform duration-200 hover:-translate-y-0.5">
+    <div className="glass rounded-3xl p-5 flex flex-col items-start gap-4 shrink-0 snap-center w-[220px] sm:w-[240px]">
       <div className="shrink-0 w-14 h-14 rounded-2xl bg-white border border-white/80 shadow-[0_6px_16px_-8px_rgba(29,27,46,0.35)] flex items-center justify-center">
         {src ? <img src={src} alt="" className="w-8 h-8 object-contain" /> : <Logo />}
       </div>
@@ -541,11 +546,12 @@ function Payouts() {
       <div className="absolute top-0 left-1/4 w-56 h-56 rounded-full bg-gradient-to-br from-sky-300 to-indigo-400 opacity-20 blur-3xl -z-10" />
       <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">Five ways to get paid, worldwide.</h2>
       <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">Pick the one that suits where you live and withdraw to it.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+      <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 sm:mx-0 px-6 sm:px-0" style={{ scrollbarWidth: 'none' }}>
         {PAYOUT_METHODS.map((m) => (
           <PayoutCard key={m.name} {...m} />
         ))}
       </div>
+      <p className="text-xs font-body text-[var(--ink-faint)] mt-1 sm:hidden">← swipe →</p>
     </section>
   );
 }
