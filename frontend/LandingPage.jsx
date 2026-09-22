@@ -252,6 +252,14 @@ function StatsSection() {
 
   return (
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
+      <div className="text-center mb-6">
+        <h2 className="font-display font-bold text-2xl sm:text-3xl text-[var(--ink)] mb-2">
+          Bexalink, by the numbers
+        </h2>
+        <p className="font-body text-sm text-[var(--ink-soft)]">
+          Live stats from our publisher network — updated in real time, no filler.
+        </p>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {items.map((it) => (
           <WidgetStat key={it.label} label={it.label} value={it.value} gradient={it.gradient} />
