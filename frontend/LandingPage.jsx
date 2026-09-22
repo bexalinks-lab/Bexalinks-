@@ -109,9 +109,9 @@ function Nav() {
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
             aria-controls="mobile-menu"
-            className="btn btn-secondary md:hidden w-9 h-9 rounded-full"
+            className="md:hidden w-10 h-10 rounded-lg border-2 border-[var(--ink)] flex items-center justify-center bg-white"
           >
-            {open ? <X size={16} /> : <Menu size={16} />}
+            {open ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
 
@@ -119,14 +119,14 @@ function Nav() {
         {open && (
           <nav
             id="mobile-menu"
-            className="md:hidden absolute right-6 sm:right-10 top-full mt-1 w-56 glass-strong rounded-3xl p-2 flex flex-col font-body text-sm font-medium text-[var(--ink)]"
+            className="md:hidden absolute right-6 sm:right-10 top-full mt-1 w-60 bg-white rounded-2xl p-2 flex flex-col font-body text-sm font-medium text-[var(--ink)] shadow-2xl border border-black/5"
           >
-            {[...NAV_LINKS, { href: '/login', label: 'Log in' }].map((l) => (
+            {[...NAV_LINKS, { href: '/login', label: 'Log in' }, { href: '/signup', label: 'Sign up' }].map((l, i, arr) => (
               <a
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors"
+                className={`px-4 py-3 rounded-xl hover:bg-black/5 transition-colors ${i < arr.length - 1 ? 'border-b border-black/5' : ''}`}
               >
                 {l.label}
               </a>
@@ -259,9 +259,6 @@ function StatsSection() {
           <WidgetStat key={it.label} label={it.label} value={it.value} gradient={it.gradient} />
         ))}
       </div>
-      <p className="text-center text-xs font-body text-[var(--ink-faint)] mt-4">
-        Payouts available via {stats?.payoutMethods || 5} methods — PayPal, Payoneer, Bank transfer, USDT, UPI
-      </p>
     </section>
   );
 }
@@ -406,13 +403,21 @@ function Rates() {
           traffic.
         </p>
       </div>
-      <div className="glass rounded-3xl px-6 py-2">
-        <RateRow country="United States" cpm={6.2} flag="🇺🇸" />
-        <RateRow country="United Kingdom" cpm={5.4} flag="🇬🇧" />
-        <RateRow country="Germany" cpm={5.1} flag="🇩🇪" />
-        <RateRow country="India" cpm={1.3} flag="🇮🇳" />
-        <RateRow country="Brazil" cpm={1.6} flag="🇧🇷" />
-        <RateRow country="Global average" cpm={2.9} flag="🌍" />
+      <div>
+        <div className="glass rounded-3xl px-6 py-2 mb-4">
+          <RateRow country="United States" cpm={6.2} flag="🇺🇸" />
+          <RateRow country="United Kingdom" cpm={5.4} flag="🇬🇧" />
+          <RateRow country="Germany" cpm={5.1} flag="🇩🇪" />
+          <RateRow country="India" cpm={1.3} flag="🇮🇳" />
+          <RateRow country="Brazil" cpm={1.6} flag="🇧🇷" />
+          <RateRow country="Global average" cpm={2.9} flag="🌍" />
+        </div>
+        <div className="glass rounded-3xl px-6 py-5 flex flex-col gap-3 font-body text-sm text-[var(--ink-soft)]">
+          <p>→ Minimum withdrawal is <strong className="text-[var(--ink)]">$5</strong>, on any method.</p>
+          <p>→ Requests are reviewed and paid out by our team — most land <strong className="text-[var(--ink)]">the same day</strong>, weekends can take a little longer.</p>
+          <p>→ Request a withdrawal <strong className="text-[var(--ink)]">anytime, 24/7</strong> — no fixed payout cycle to wait for.</p>
+          <p>→ <strong className="text-[var(--ink)]">5 payout methods</strong> supported: PayPal, Payoneer, Bank transfer, USDT, UPI.</p>
+        </div>
       </div>
     </section>
   );
