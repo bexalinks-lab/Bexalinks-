@@ -528,13 +528,13 @@ const PAYOUT_METHODS = [
 
 function PayoutCard({ name, note, Logo, src }) {
   return (
-    <div className="glass rounded-3xl p-5 flex flex-col items-start gap-4 shrink-0 snap-center w-[220px] sm:w-[240px]">
-      <div className="shrink-0 w-14 h-14 rounded-2xl bg-white border border-white/80 shadow-[0_6px_16px_-8px_rgba(29,27,46,0.35)] flex items-center justify-center">
-        {src ? <img src={src} alt="" className="w-8 h-8 object-contain" /> : <Logo />}
+    <div className="flex items-center gap-3 shrink-0 snap-center">
+      <div className="shrink-0 w-11 h-11 rounded-2xl bg-white border border-white/80 shadow-[0_6px_16px_-8px_rgba(29,27,46,0.35)] flex items-center justify-center">
+        {src ? <img src={src} alt="" className="w-7 h-7 object-contain" /> : <Logo />}
       </div>
       <div>
-        <h3 className="font-display font-semibold text-base text-[var(--ink)] leading-tight">{name}</h3>
-        <p className="font-body text-xs text-[var(--ink-faint)] mt-1">{note}</p>
+        <h3 className="font-display font-semibold text-base text-[var(--ink)] leading-tight whitespace-nowrap">{name}</h3>
+        <p className="font-body text-xs text-[var(--ink-faint)]">{note}</p>
       </div>
     </div>
   );
@@ -546,12 +546,12 @@ function Payouts() {
       <div className="absolute top-0 left-1/4 w-56 h-56 rounded-full bg-gradient-to-br from-sky-300 to-indigo-400 opacity-20 blur-3xl -z-10" />
       <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">Five ways to get paid, worldwide.</h2>
       <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">Pick the one that suits where you live and withdraw to it.</p>
-      <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 sm:mx-0 px-6 sm:px-0" style={{ scrollbarWidth: 'none' }}>
+      <div className="flex gap-8 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 sm:mx-0 px-6 sm:px-0" style={{ scrollbarWidth: 'none' }}>
         {PAYOUT_METHODS.map((m) => (
           <PayoutCard key={m.name} {...m} />
         ))}
       </div>
-      <p className="text-xs font-body text-[var(--ink-faint)] mt-1 sm:hidden">← swipe →</p>
+      <p className="text-xs font-body text-[var(--ink-faint)] mt-2 sm:hidden">← swipe →</p>
     </section>
   );
 }
