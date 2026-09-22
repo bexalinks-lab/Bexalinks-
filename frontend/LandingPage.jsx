@@ -417,16 +417,46 @@ function Rates() {
   );
 }
 
+const TESTIMONIALS = [
+  {
+    quote: "I moved my whole Telegram audience over about four months ago. Payouts have landed on time every week since.",
+    name: "Priya Nair — independent publisher",
+  },
+  {
+    quote: "Started with one WhatsApp group of 200 people. Didn't expect the CPM to actually hold up, but it did.",
+    name: "Marco Silva — community admin, Brazil",
+  },
+  {
+    quote: "Switched over from another shortener after a payout got stuck for three weeks there. Bexalink paid within a day.",
+    name: "Ahmed Raza — YouTube creator",
+  },
+  {
+    quote: "The referral share alone covers my hosting bill now. Didn't even have to do anything extra for it.",
+    name: "Lisa Chen — blogger",
+  },
+  {
+    quote: "I run a small Discord server. Never thought link shortening could be a real side income until this.",
+    name: "Daniel Okafor — Discord community owner",
+  },
+];
+
 function Testimonial() {
   return (
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
-      <div className="glass-strong rounded-3xl p-8 max-w-xl">
-        <p className="font-display font-medium text-2xl text-[var(--ink)] leading-snug mb-5">
-          I moved my whole Telegram audience over about four months ago.
-          Payouts have landed on time every week since.
-        </p>
-        <p className="font-body text-sm text-[var(--ink-soft)]">Priya Nair — independent publisher</p>
+      <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 sm:mx-0 px-6 sm:px-0" style={{ scrollbarWidth: 'none' }}>
+        {TESTIMONIALS.map((t) => (
+          <div
+            key={t.name}
+            className="glass-strong rounded-3xl p-8 shrink-0 snap-center w-[85%] sm:w-[420px]"
+          >
+            <p className="font-display font-medium text-xl sm:text-2xl text-[var(--ink)] leading-snug mb-5">
+              {t.quote}
+            </p>
+            <p className="font-body text-sm text-[var(--ink-soft)]">{t.name}</p>
+          </div>
+        ))}
       </div>
+      <p className="text-center text-xs font-body text-[var(--ink-faint)] mt-1 sm:hidden">← swipe →</p>
     </section>
   );
 }
