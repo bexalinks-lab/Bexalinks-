@@ -380,6 +380,49 @@ function Features() {
   );
 }
 
+function RateRow({ country, cpm, flag }) {
+  return (
+    <div className="flex items-center justify-between py-3 border-b border-white/40 last:border-0">
+      <span className="font-body text-sm text-[var(--ink)] flex items-center gap-2">
+        {flag && <span className="text-lg" aria-hidden="true">{flag}</span>}
+        {country}
+      </span>
+      <span className="font-display font-semibold text-sm text-[var(--ink)]">${cpm.toFixed(2)}</span>
+    </div>
+  );
+}
+
+function Rates() {
+  return (
+    <section id="rates" className="px-6 sm:px-10 max-w-5xl mx-auto py-10 grid lg:grid-cols-2 gap-10 items-start">
+      <div>
+        <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-3">Priced by where your viewer is.</h2>
+        <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed max-w-sm">
+          The figures below are current per-1,000-view averages. Your
+          dashboard shows the live rate for every country sending you
+          traffic.
+        </p>
+      </div>
+      <div>
+        <div className="glass rounded-3xl px-6 py-2 mb-4">
+          <RateRow country="United States" cpm={6.2} flag="🇺🇸" />
+          <RateRow country="United Kingdom" cpm={5.4} flag="🇬🇧" />
+          <RateRow country="Germany" cpm={5.1} flag="🇩🇪" />
+          <RateRow country="India" cpm={1.3} flag="🇮🇳" />
+          <RateRow country="Brazil" cpm={1.6} flag="🇧🇷" />
+          <RateRow country="Global average" cpm={2.9} flag="🌍" />
+        </div>
+        <div className="glass rounded-3xl px-6 py-5 flex flex-col gap-3 font-body text-sm text-[var(--ink-soft)]">
+          <p>→ Minimum withdrawal is <strong className="text-[var(--ink)]">$5</strong>, on any method.</p>
+          <p>→ Requests are reviewed and paid out by our team — most land <strong className="text-[var(--ink)]">the same day</strong>, weekends can take a little longer.</p>
+          <p>→ Request a withdrawal <strong className="text-[var(--ink)]">anytime, 24/7</strong> — no fixed payout cycle to wait for.</p>
+          <p>→ <strong className="text-[var(--ink)]">5 payout methods</strong> supported: PayPal, Payoneer, Bank transfer, USDT, UPI.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const TESTIMONIALS = [
   {
     quote: "I moved my whole Telegram audience over about four months ago. Payouts have landed on time every week since.",
@@ -612,6 +655,7 @@ export default function LandingPage() {
       <StatsSection />
       <HowItWorks />
       <Features />
+      <Rates />
       <Testimonial />
       <Payouts />
       <ClosingCTA />
