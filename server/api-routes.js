@@ -358,4 +358,28 @@ router.delete('/admin/ad-slots/:id', requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
+// ---- PUBLIC STATS (for the landing page's trust/social-proof section) -----
+// Real, live numbers pulled straight from the database — no auth required,
+// nothing sensitive exposed (just aggregate counts and sums).
+router.get('/public/stats', async (req, res) => {
+  try {
+    const [users, links, views, paid] = await Promise.all([
+      db.query(`SELECT COUNT(*)::int AS n FROM users WHERE is_banned = false`),
+      db.query(`SELECT COUNT(*)::int AS n FROM links`),
+      db.query(`SELECT COALESCE(SUM(views),0)::bigint AS n FROM daily_earnings`),
+      db.query(`SELECT COALESCE(SUM(amount_cents),0)::bigint AS n FROM payouts WHERE status = 'paid'`),
+    ]);
+    res.json({
+      totalUsers: users.rows[0].n,
+      totalLinks: links.rows[0].n,
+      totalViews: Number(views.rows[0].n),
+      totalPaid: Number(paid.rows[0].n) / 100,
+      payoutMethods: 5, // PayPal, Payoneer, Bank transfer, USDT, UPI
+    });
+  } catch (err) {
+    console.error('[public/stats]', err);
+    res.status(500).json({ error: 'Could not load stats.' });
+  }
+});
+
 module.exports = router;
