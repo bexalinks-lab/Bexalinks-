@@ -13,6 +13,17 @@ const INPUT =
   'w-full bg-white/60 border border-white/70 rounded-2xl px-4 py-2.5 text-base sm:text-sm font-body ' +
   'text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400';
 
+function GoogleLogo() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-4.5 h-4.5" aria-hidden="true">
+      <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82z" />
+      <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.46 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.11A12 12 0 0 0 12 24z" />
+      <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.39l4-3.11z" />
+      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.61l4 3.11C6.22 6.86 8.87 4.75 12 4.75z" />
+    </svg>
+  );
+}
+
 export default function Signup() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -83,6 +94,20 @@ export default function Signup() {
 
         <h1 className="font-display font-bold text-2xl text-[var(--ink)] mb-1 text-center">Create your account</h1>
         <p className="font-body text-sm text-[var(--ink-soft)] mb-6 text-center">Free to join. No minimum traffic required.</p>
+
+        <a
+          href={ref ? `/api/auth/google?ref=${encodeURIComponent(ref)}` : '/api/auth/google'}
+          className="btn btn-secondary font-body w-full px-5 py-2.5 rounded-full text-sm flex items-center justify-center gap-2.5"
+        >
+          <GoogleLogo />
+          Continue with Google
+        </a>
+
+        <div className="flex items-center gap-3 my-4">
+          <span className="flex-1 h-px bg-black/10" />
+          <span className="text-xs font-body text-[var(--ink-faint)]">or</span>
+          <span className="flex-1 h-px bg-black/10" />
+        </div>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           <input
