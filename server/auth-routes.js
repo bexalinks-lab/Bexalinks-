@@ -6,6 +6,7 @@
 // dashboard's "signed out" check actually work end to end.
 
 const express = require('express');
+const crypto = require('crypto');
 const db = require('./db');
 const { hashPassword, verifyPassword } = require('./password-utils');
 
@@ -14,7 +15,16 @@ const router = express.Router();
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function publicUser(u) {
-  return { id: u.id, email: u.email, displayName: u.display_name, role: u.role };
+  return { id: u.id, email: u.email, displayName: u.display_name, role: u.role, avatarUrl: u.avatar_url };
+}
+
+// Where Google should send the browser back to after consent. Prefer an
+// explicit env var (set this to the exact URI you registered in Google
+// Cloud Console); otherwise derive it from the incoming request.
+function googleRedirectUri(req) {
+  if (process.env.GOOGLE_CALLBACK_URL) return process.env.GOOGLE_CALLBACK_URL;
+  const base = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+  return `${base}/api/auth/google/callback`;
 }
 
 // ---- POST /api/auth/signup -------------------------------------------------
@@ -108,7 +118,7 @@ router.get('/me', async (req, res) => {
 
   try {
     const { rows } = await db.query(
-      'SELECT id, email, display_name, role FROM users WHERE id = $1',
+      'SELECT id, email, display_name, role, avatar_url FROM users WHERE id = $1',
       [userId]
     );
     if (!rows[0]) return res.status(401).json({ error: 'Not authenticated.' });
@@ -119,7 +129,133 @@ router.get('/me', async (req, res) => {
   }
 });
 
-// ---- GET /api/auth/bootstrap-admin -----------------------------------------
+// ---- GET /api/auth/google ---------------------------------------------------
+// Kicks off "Continue with Google": redirect the browser to Google's
+// consent screen. Requires GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET in the
+// environment (see .env.example). ?ref=<userId> is preserved through the
+// flow so referral credit still works for Google sign-ups.
+router.get('/google', (req, res) => {
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    return res.status(500).send('Google login is not configured on this server yet.');
+  }
+
+  const state = crypto.randomBytes(24).toString('hex');
+  req.session.oauthState = state;
+  req.session.oauthRef = req.query.ref ? String(req.query.ref) : null;
+
+  const params = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    redirect_uri: googleRedirectUri(req),
+    response_type: 'code',
+    scope: 'openid email profile',
+    state,
+    access_type: 'online',
+    prompt: 'select_account',
+  });
+
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+});
+
+// ---- GET /api/auth/google/callback ------------------------------------------
+// Google redirects here with ?code=&state=. We verify state, exchange the
+// code for an access token, pull the real profile (id, email, name,
+// picture) from Google, then find-or-create the matching row in `users`
+// (which already has google_id / avatar_url columns for exactly this) and
+// log the browser in the same way email/password login does.
+router.get('/google/callback', async (req, res) => {
+  const { code, state, error } = req.query;
+
+  if (error) return res.redirect('/login?error=google_denied');
+  if (!code || !state || state !== req.session?.oauthState) {
+    return res.redirect('/login?error=google_failed');
+  }
+
+  const ref = req.session?.oauthRef || null;
+  req.session.oauthState = null;
+  req.session.oauthRef = null;
+
+  try {
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code: String(code),
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: googleRedirectUri(req),
+        grant_type: 'authorization_code',
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenRes.ok || !tokenData.access_token) {
+      console.error('[auth/google] token exchange failed', tokenData);
+      return res.redirect('/login?error=google_failed');
+    }
+
+    const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    const profile = await profileRes.json();
+    if (!profileRes.ok || !profile.sub || !profile.email) {
+      console.error('[auth/google] userinfo failed', profile);
+      return res.redirect('/login?error=google_failed');
+    }
+
+    const googleId = profile.sub;
+    const email = String(profile.email).trim().toLowerCase();
+    const displayName = profile.name || null;
+    const avatarUrl = profile.picture || null;
+
+    let user;
+    const byGoogle = await db.query('SELECT * FROM users WHERE google_id = $1', [googleId]);
+
+    if (byGoogle.rows[0]) {
+      user = byGoogle.rows[0];
+      if (avatarUrl && avatarUrl !== user.avatar_url) {
+        const { rows } = await db.query(
+          'UPDATE users SET avatar_url = $1, updated_at = now() WHERE id = $2 RETURNING *',
+          [avatarUrl, user.id]
+        );
+        user = rows[0];
+      }
+    } else {
+      // Someone signed up with email/password before — link this Google
+      // account to that same row instead of creating a duplicate user.
+      const byEmail = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+      if (byEmail.rows[0]) {
+        const { rows } = await db.query(
+          `UPDATE users SET google_id = $1, avatar_url = COALESCE(avatar_url, $2), updated_at = now()
+           WHERE id = $3 RETURNING *`,
+          [googleId, avatarUrl, byEmail.rows[0].id]
+        );
+        user = rows[0];
+      } else {
+        let referredBy = null;
+        if (ref) {
+          const r = await db.query('SELECT id FROM users WHERE id = $1', [ref]).catch(() => ({ rows: [] }));
+          referredBy = r.rows[0]?.id || null;
+        }
+        const { rows } = await db.query(
+          `INSERT INTO users (email, google_id, display_name, avatar_url, referred_by, email_verified_at)
+           VALUES ($1, $2, $3, $4, $5, now())
+           RETURNING *`,
+          [email, googleId, displayName, avatarUrl, referredBy]
+        );
+        user = rows[0];
+      }
+    }
+
+    if (user.is_banned) return res.redirect('/login?error=banned');
+
+    req.session.userId = user.id;
+    res.redirect('/dashboard');
+  } catch (err) {
+    console.error('[auth/google/callback]', err);
+    res.redirect('/login?error=google_failed');
+  }
+});
+
+
 // One-time helper so you can promote an account to admin from the browser
 // without needing psql or any database tool. Protected by a secret so
 // randoms can't call it. Set ADMIN_BOOTSTRAP_SECRET in your environment,
