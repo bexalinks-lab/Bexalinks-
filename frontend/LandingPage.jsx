@@ -286,9 +286,9 @@ function Hero() {
           <p className="font-body text-[var(--ink-soft)] mb-6 max-w-md">What you actually earn — no hidden fine print.</p>
           <div className="grid grid-cols-2 gap-4">
             <WidgetStat label="Avg. CPM" value="$4.80" sublabel="Tier-1 traffic" gradient="bg-indigo-500" />
-            <WidgetStat label="Payout time" value="< 24h" gradient="bg-pink-500" />
+            <WidgetStat label="Payout time" value="24/7" sublabel="Requests processed daily" gradient="bg-pink-500" />
             <WidgetStat label="Referral share" value="10%" sublabel="For life" gradient="bg-sky-400" />
-            <WidgetStat label="Payout methods" value="5" gradient="bg-violet-500" />
+            <WidgetStat label="Payout methods" value="5" sublabel="Payment modes to choose" gradient="bg-violet-500" />
           </div>
         </div>
       </div>
@@ -573,7 +573,7 @@ const GAME_CHANGER_POINTS = [
   'Advanced security options',
   'Regular payments',
   '$5.00 minimum withdrawal',
-  '14+ international & local payout methods',
+  '5 international & local payout methods',
 ];
 
 function WhyChooseUs() {
