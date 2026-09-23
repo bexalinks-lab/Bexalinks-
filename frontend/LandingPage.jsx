@@ -9,6 +9,7 @@
 import { useEffect, useState } from 'react';
 import {
   ArrowRight, Globe2, Landmark, Link2, Menu, ShieldCheck, Wallet, Users, Copy, X,
+  TrendingUp, LayoutDashboard, Headset, CheckCircle2,
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
@@ -375,6 +376,18 @@ function Features() {
           CPM is resolved per country and cached, not renegotiated against
           you once your traffic ramps up.
         </FeatureCard>
+        <FeatureCard icon={TrendingUp} gradient="bg-gradient-to-br from-emerald-400 to-teal-600" title="Highest CPM rates">
+          Maximize your traffic earnings with rates that only move up as
+          our advertiser demand grows.
+        </FeatureCard>
+        <FeatureCard icon={LayoutDashboard} gradient="bg-gradient-to-br from-amber-400 to-orange-500" title="Advanced dashboard">
+          Real-time charts, per-link breakdowns, and country-level
+          insights — all the control you need in one place.
+        </FeatureCard>
+        <FeatureCard icon={Headset} gradient="bg-gradient-to-br from-cyan-400 to-sky-600" title="24/7 customer support">
+          Get a real answer any time of day — our support team is always
+          on, no matter your timezone.
+        </FeatureCard>
       </div>
     </section>
   );
@@ -555,6 +568,42 @@ function Payouts() {
   );
 }
 
+const GAME_CHANGER_POINTS = [
+  'No captcha & adult ads',
+  'Advanced security options',
+  'Regular payments',
+  '$5.00 minimum withdrawal',
+  '14+ international & local payout methods',
+];
+
+function WhyChooseUs() {
+  return (
+    <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10 relative">
+      <div className="absolute top-10 right-1/4 w-64 h-64 rounded-full bg-gradient-to-br from-violet-300 to-pink-300 opacity-20 blur-3xl -z-10" />
+      <div className="glass-strong rounded-[40px] p-8 sm:p-12 grid sm:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
+        <div>
+          <h2 className="font-display font-bold text-3xl sm:text-4xl text-[var(--ink)] mb-4 leading-tight">
+            Bexalink is a game-changer.
+          </h2>
+          <p className="font-body text-[var(--ink-soft)] text-sm sm:text-base leading-relaxed max-w-md">
+            We built Bexalink with hardworking creators in mind — fostering
+            growth and success together, without the friction that slows
+            other shorteners down.
+          </p>
+        </div>
+        <ul className="flex flex-col gap-3">
+          {GAME_CHANGER_POINTS.map((point) => (
+            <li key={point} className="glass rounded-2xl px-4 py-3 flex items-center gap-3">
+              <CheckCircle2 size={20} className="text-emerald-500 shrink-0" strokeWidth={2.2} />
+              <span className="font-body text-sm font-medium text-[var(--ink)]">{point}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 function ClosingCTA() {
   return (
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-16 flex justify-center">
@@ -651,6 +700,7 @@ export default function LandingPage() {
       <Features />
       <Rates />
       <Testimonial />
+      <WhyChooseUs />
       <Payouts />
       <ClosingCTA />
       <Footer />
