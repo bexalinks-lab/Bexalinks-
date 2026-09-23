@@ -15,7 +15,7 @@ const INPUT =
 
 function GoogleLogo() {
   return (
-    <svg viewBox="0 0 24 24" className="w-4.5 h-4.5" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
       <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82z" />
       <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.46 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.11A12 12 0 0 0 12 24z" />
       <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.39l4-3.11z" />
@@ -80,30 +80,24 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="relative w-full max-w-sm p-7 overflow-hidden glass-strong" style={{ borderRadius: 40 }}>
+      <div className="relative w-full max-w-sm p-8 overflow-hidden glass-strong" style={{ borderRadius: 40 }}>
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-200/60 via-sky-100/40 to-pink-100/50" />
+        <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-gradient-to-br from-violet-400 to-pink-400 opacity-25 blur-2xl -z-10" />
 
-        <div className="flex justify-center mb-5"><BrandLogo href="/" /></div>
-        <div className="w-16 h-16 mx-auto mb-2 rounded-2xl overflow-hidden flex items-center justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Bexa Network" className="w-full h-full object-contain" />
-        </div>
-        <p className="text-center text-[11px] font-body tracking-wide uppercase text-[var(--ink-faint)] mb-4">
-          Powered by Bexa Network
-        </p>
+        <div className="flex justify-center mb-6"><BrandLogo href="/" /></div>
 
-        <h1 className="font-display font-bold text-2xl text-[var(--ink)] mb-1 text-center">Create your account</h1>
-        <p className="font-body text-sm text-[var(--ink-soft)] mb-6 text-center">Free to join. No minimum traffic required.</p>
+        <h1 className="font-display font-bold text-[1.7rem] text-[var(--ink)] mb-1.5 text-center">Create your account</h1>
+        <p className="font-body text-sm text-[var(--ink-soft)] mb-7 text-center leading-relaxed">Free to join. No minimum traffic required.</p>
 
         <a
           href={ref ? `/api/auth/google?ref=${encodeURIComponent(ref)}` : '/api/auth/google'}
-          className="btn btn-secondary font-body w-full px-5 py-2.5 rounded-full text-sm flex items-center justify-center gap-2.5"
+          className="btn btn-secondary font-body w-full py-2.5 rounded-full text-sm flex items-center justify-center gap-2.5"
         >
           <GoogleLogo />
           Continue with Google
         </a>
 
-        <div className="flex items-center gap-3 my-4">
+        <div className="flex items-center gap-3 my-5">
           <span className="flex-1 h-px bg-black/10" />
           <span className="text-xs font-body text-[var(--ink-faint)]">or</span>
           <span className="flex-1 h-px bg-black/10" />
@@ -145,12 +139,12 @@ export default function Signup() {
             <p className="text-sm font-body text-rose-600 bg-rose-50 border border-rose-100 rounded-2xl px-3 py-2">{error}</p>
           )}
 
-          <button type="submit" disabled={busy} className="btn btn-primary font-body w-full px-5 py-2.5 rounded-full text-sm mt-1">
+          <button type="submit" disabled={busy} className="btn btn-primary font-body w-full py-2.5 rounded-full text-sm mt-1">
             {busy ? 'Creating account…' : 'Get started'}
           </button>
         </form>
 
-        <p className="font-body text-sm text-[var(--ink-soft)] text-center mt-5">
+        <p className="font-body text-sm text-[var(--ink-soft)] text-center mt-6">
           Already have an account? <a href="/login" className="text-[var(--ink)] font-medium underline">Log in</a>
         </p>
         <div className="text-center mt-2">
