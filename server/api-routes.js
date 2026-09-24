@@ -382,4 +382,55 @@ router.get('/public/stats', async (req, res) => {
   }
 });
 
+// ---- HELP CENTER (support tickets) ----------------------------------------
+
+router.post('/support', requireAuth, async (req, res) => {
+  const subject = String(req.body.subject || '').trim().slice(0, 120);
+  const message = String(req.body.message || '').trim().slice(0, 2000);
+  if (subject.length < 3 || message.length < 10) {
+    return res.status(400).json({ error: 'Please add a subject and a few details (10+ characters).' });
+  }
+  const { rows: recent } = await db.query(
+    `SELECT COUNT(*)::int AS n FROM support_tickets
+     WHERE user_id = $1 AND created_at > NOW() - INTERVAL '1 hour'`,
+    [String(req.user.id)]
+  );
+  if (recent[0].n >= 5) return res.status(429).json({ error: 'Too many tickets. Try again later.' });
+  const { rows } = await db.query(
+    `INSERT INTO support_tickets (user_id, subject, message) VALUES ($1, $2, $3)
+     RETURNING id, subject, message, status, admin_reply, created_at`,
+    [String(req.user.id), subject, message]
+  );
+  res.json(rows[0]);
+});
+
+router.get('/support/mine', requireAuth, async (req, res) => {
+  const { rows } = await db.query(
+    `SELECT id, subject, message, status, admin_reply, created_at
+     FROM support_tickets WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`,
+    [String(req.user.id)]
+  );
+  res.json({ tickets: rows });
+});
+
+router.get('/admin/support', requireAdmin, async (req, res) => {
+  const { rows } = await db.query(
+    `SELECT t.id, t.subject, t.message, t.status, t.admin_reply, t.created_at,
+            u.email, u.display_name
+     FROM support_tickets t LEFT JOIN users u ON u.id::text = t.user_id
+     ORDER BY (t.status = 'open') DESC, t.created_at DESC LIMIT 200`
+  );
+  res.json({ tickets: rows });
+});
+
+router.post('/admin/support/:id/reply', requireAdmin, async (req, res) => {
+  const reply = String(req.body.reply || '').trim().slice(0, 2000);
+  const status = req.body.resolve === false ? 'open' : 'resolved';
+  await db.query(
+    `UPDATE support_tickets SET admin_reply = $1, status = $2, updated_at = NOW() WHERE id = $3`,
+    [reply || null, status, req.params.id]
+  );
+  res.json({ success: true });
+});
+
 module.exports = router;
