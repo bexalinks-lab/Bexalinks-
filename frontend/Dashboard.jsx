@@ -21,9 +21,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import {
   Link2, Wallet, Users, TrendingUp, Copy, Settings, LogOut, LayoutDashboard,
-  RefreshCw, ExternalLink, Search, Check, Share2, AlertCircle, Shield,
+  RefreshCw, ExternalLink, Search, Check, Share2, AlertCircle, Shield, HelpCircle,
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
+import HelpView from './HelpView';
 
 const BRAND_GRADIENT = 'bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500';
 const MIN_PAYOUT = 5;
@@ -233,6 +234,7 @@ const TABS = [
   { key: 'referrals', label: 'Referrals', icon: Users, gradient: 'bg-gradient-to-br from-sky-400 to-blue-500' },
   { key: 'payouts', label: 'Payouts', icon: Wallet, gradient: 'bg-gradient-to-br from-violet-400 to-purple-600' },
   { key: 'settings', label: 'Settings', icon: Settings, gradient: 'bg-gradient-to-br from-slate-400 to-slate-600' },
+  { key: 'help', label: 'Help Center', icon: HelpCircle, gradient: 'bg-gradient-to-br from-teal-400 to-emerald-600' },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
 
@@ -299,6 +301,15 @@ function Sidebar({ active, onSelect }) {
                   <Shield size={14} strokeWidth={2} className="text-white" />
                 </span>
                 Payouts (admin)
+              </a>
+              <a
+                href="/admin/support"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-body font-medium whitespace-nowrap shrink-0 text-left text-[var(--ink-soft)] hover:bg-white/30"
+              >
+                <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shrink-0">
+                  <Shield size={14} strokeWidth={2} className="text-white" />
+                </span>
+                Support (admin)
               </a>
             </>
           )}
@@ -1206,6 +1217,7 @@ export default function Dashboard() {
           <PayoutsView summary={summary} loading={loadingSummary} payoutsQ={payoutsQ} reloadSummary={summaryQ.reload} toast={showToast} />
         )}
         {tab === 'settings' && <SettingsView summary={summary} toast={showToast} />}
+        {tab === 'help' && <HelpView PageHeader={PageHeader} toast={showToast} />}
       </main>
 
       <Toast toast={toast} />
