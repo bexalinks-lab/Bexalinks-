@@ -50,6 +50,22 @@ async function runMigrations() {
   } catch (err) {
     console.error('[migrate] Could not add "payoneer" to payout_method enum:', err.message);
   }
+
+  // Help Center: support tickets (safe to run every deploy).
+  try {
+    await db.query(`CREATE TABLE IF NOT EXISTS support_tickets (
+      id SERIAL PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      message TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'open',
+      admin_reply TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+  } catch (err) {
+    console.error('[migrate] Could not create support_tickets:', err.message);
+  }
 }
 
 module.exports = { runMigrations };
