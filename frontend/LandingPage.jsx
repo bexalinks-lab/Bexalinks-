@@ -264,6 +264,63 @@ function StatsSection() {
   );
 }
 
+// Thin line-art hero graphic: link → cloud → wallet, in the brand's
+// indigo/violet/pink gradient. Pure inline SVG, no external image.
+function HeroIllustration() {
+  return (
+    <svg
+      viewBox="0 0 600 200"
+      className="w-full max-w-md h-auto mb-8"
+      fill="none"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="heroLine" x1="0" y1="0" x2="600" y2="200" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#6366F1" />
+          <stop offset="55%" stopColor="#A855F7" />
+          <stop offset="100%" stopColor="#EC4899" />
+        </linearGradient>
+      </defs>
+
+      {/* connecting path: link node → cloud → wallet */}
+      <path
+        d="M95 100 H210 C230 100 230 60 250 60 H350 C370 60 370 140 390 140 H505"
+        stroke="url(#heroLine)" strokeWidth="2" strokeDasharray="1 9" strokeLinecap="round"
+      />
+
+      {/* link node */}
+      <circle cx="60" cy="100" r="42" fill="url(#heroLine)" opacity="0.08" />
+      <circle cx="60" cy="100" r="42" stroke="url(#heroLine)" strokeWidth="1.5" />
+      <g transform="translate(60 100)" stroke="url(#heroLine)" strokeWidth="2.4" strokeLinecap="round">
+        <path d="M-14 -6 a8 8 0 0 1 0 -11 l6 -6 a8 8 0 0 1 12 12 l-3 3" />
+        <path d="M14 6 a8 8 0 0 1 0 11 l-6 6 a8 8 0 0 1 -12 -12 l3 -3" />
+      </g>
+
+      {/* cloud node */}
+      <circle cx="300" cy="40" r="34" fill="url(#heroLine)" opacity="0.08" />
+      <circle cx="300" cy="40" r="34" stroke="url(#heroLine)" strokeWidth="1.5" />
+      <path
+        d="M286 45 a9 9 0 0 1 2 -17.7 a11 11 0 0 1 21 3.6 a8 8 0 0 1 -2 15.6 h-21 a7 7 0 0 1 0 -1.5 Z"
+        stroke="url(#heroLine)" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round"
+      />
+
+      {/* wallet / payout node */}
+      <circle cx="540" cy="140" r="42" fill="url(#heroLine)" opacity="0.08" />
+      <circle cx="540" cy="140" r="42" stroke="url(#heroLine)" strokeWidth="1.5" />
+      <g transform="translate(540 140)" stroke="url(#heroLine)" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round">
+        <rect x="-16" y="-11" width="32" height="22" rx="4" />
+        <path d="M-16 -4 h32" />
+        <circle cx="8" cy="7" r="2.4" fill="url(#heroLine)" stroke="none" />
+      </g>
+
+      {/* small floating accent dots, matching the reference cubes */}
+      <circle cx="180" cy="70" r="4" fill="url(#heroLine)" opacity="0.6" />
+      <circle cx="420" cy="105" r="4" fill="url(#heroLine)" opacity="0.6" />
+      <circle cx="460" cy="60" r="3" fill="url(#heroLine)" opacity="0.4" />
+    </svg>
+  );
+}
+
 function Hero() {
   return (
     <section className="relative px-6 sm:px-10 max-w-5xl mx-auto pt-10 pb-10">
@@ -272,11 +329,12 @@ function Hero() {
           <h1 className="font-display font-extrabold text-[2.6rem] sm:text-5xl leading-[1.08] text-[var(--ink)] mb-6">
             Every link you share can pay you back.
           </h1>
-          <p className="font-body text-[var(--ink-soft)] text-base sm:text-lg mb-8 max-w-md leading-relaxed">
+          <p className="font-subheading text-[var(--ink-soft)] text-base sm:text-lg mb-8 max-w-md leading-relaxed">
             Bexalink shortens your links and credits your balance per
             verified view — real visitors only, checked the way ad networks
             check them, with payouts you can request the same day.
           </p>
+          <HeroIllustration />
           <HeroShortenBar />
           <p className="text-xs font-body text-[var(--ink-faint)] mt-4">No card required. First payout available at $5.</p>
         </div>
