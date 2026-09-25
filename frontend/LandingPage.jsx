@@ -728,6 +728,7 @@ function ClosingCTA() {
 function Footer() {
   return (
     <footer className="relative overflow-hidden">
+      <div className="footer-sunburst" aria-hidden="true" />
       <FooterIcons />
       <div className="px-6 sm:px-10 max-w-5xl mx-auto py-10 flex flex-col sm:flex-row justify-between gap-6 text-sm font-body text-[var(--ink-faint)]">
         <div>
