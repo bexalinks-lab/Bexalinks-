@@ -56,6 +56,34 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
+/* Rotating sunburst — thin rays spinning slowly behind the footer. */
+@keyframes footer-sunburst-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.footer-sunburst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 900px;
+  height: 900px;
+  transform: translate(-50%, -50%);
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(99, 102, 241, 0.16) 0deg 1deg,
+    transparent 1deg 6deg
+  );
+  -webkit-mask-image: radial-gradient(circle, black 8%, transparent 70%);
+  mask-image: radial-gradient(circle, black 8%, transparent 70%);
+  animation: footer-sunburst-spin 40s linear infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-sunburst { animation: none; }
+}
+
 .glass-strong {
   background: var(--glass-fill-strong);
   backdrop-filter: blur(32px) saturate(160%);
