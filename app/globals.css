@@ -56,32 +56,66 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-/* Rotating sunburst — thin rays spinning slowly behind the footer. */
+/* Rotating lens-flare sunburst — brand-gradient rays with a glowing core,
+   centered on the footer's bottom-left corner. */
 @keyframes footer-sunburst-spin {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to   { transform: translate(-50%, -50%) rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes footer-flare-pulse {
+  0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(0.92); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.08); }
 }
 
 .footer-sunburst {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 900px;
-  height: 900px;
-  transform: translate(-50%, -50%);
+  bottom: 0;
+  left: 0;
+  width: 640px;
+  height: 640px;
+  transform: translate(-40%, 40%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Rotating rays, tinted with the brand gradient. */
+.footer-sunburst::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   background: repeating-conic-gradient(
     from 0deg,
-    rgba(99, 102, 241, 0.16) 0deg 1deg,
-    transparent 1deg 6deg
+    rgba(99, 102, 241, 0.4) 0deg 1deg,
+    rgba(168, 85, 247, 0.28) 2deg 3deg,
+    rgba(236, 72, 153, 0.22) 4deg 5deg,
+    transparent 6deg 11deg
   );
-  -webkit-mask-image: radial-gradient(circle, black 8%, transparent 70%);
-  mask-image: radial-gradient(circle, black 8%, transparent 70%);
-  animation: footer-sunburst-spin 40s linear infinite;
-  pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle, black 6%, transparent 62%);
+  mask-image: radial-gradient(circle, black 6%, transparent 62%);
+  animation: footer-sunburst-spin 34s linear infinite;
+}
+
+/* Glowing flare core at the center of the burst. */
+.footer-sunburst::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, #FFFFFF 0%, #EC4899 30%, #A855F7 58%, rgba(99, 102, 241, 0) 78%);
+  box-shadow:
+    0 0 60px 18px rgba(236, 72, 153, 0.4),
+    0 0 130px 55px rgba(99, 102, 241, 0.22);
+  animation: footer-flare-pulse 4.5s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .footer-sunburst { animation: none; }
+  .footer-sunburst::before,
+  .footer-sunburst::after { animation: none; }
 }
 
 .glass-strong {
