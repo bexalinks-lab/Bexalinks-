@@ -1,6 +1,6 @@
 /* NOTE: @import must come before every other rule (including @tailwind),
    otherwise browsers silently ignore it and the fonts never load. */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Montserrat:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -16,7 +16,7 @@
 }
 
 html, body {
-  background: #EEF0FA;
+  background: #FFFFFF;
   color: var(--ink);
   min-height: 100%;
 }
@@ -26,29 +26,18 @@ body {
   overflow-x: hidden;
 }
 
-/* Fixed gradient-blob backdrop behind every page — the "liquid glass" glow
-   that all frosted cards float above. Fixed so it stays put while content
-   scrolls over it. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: -10%;
-  z-index: -1;
-  background:
-    radial-gradient(45% 38% at 10% 6%, rgba(99, 102, 241, 0.5), transparent 72%),
-    radial-gradient(48% 42% at 90% 15%, rgba(236, 72, 153, 0.42), transparent 72%),
-    radial-gradient(52% 46% at 20% 95%, rgba(56, 189, 248, 0.4), transparent 72%),
-    radial-gradient(46% 40% at 92% 90%, rgba(168, 85, 247, 0.4), transparent 72%),
-    linear-gradient(135deg, #EEF0FA 0%, #F3E9FB 50%, #EAF6FD 100%);
-  filter: blur(70px) saturate(140%);
-}
-
 .font-display {
-  font-family: 'Outfit', ui-sans-serif, sans-serif;
+  font-family: 'Bricolage Grotesque', ui-sans-serif, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 .font-body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Subheadings — the intro line under a main heading. Montserrat, per brand. */
+.font-subheading {
+  font-family: 'Montserrat', ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Montserrat — used only inside the "Shorten" box (input + button + result). */
