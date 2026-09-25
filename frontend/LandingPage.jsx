@@ -334,7 +334,12 @@ function Hero() {
             verified view — real visitors only, checked the way ad networks
             check them, with payouts you can request the same day.
           </p>
-          <HeroIllustration />
+          <img
+            src="/hero-tech-illustration.png"
+            alt=""
+            aria-hidden="true"
+            className="w-full max-w-md h-auto mb-8"
+          />
           <HeroShortenBar />
           <p className="text-xs font-body text-[var(--ink-faint)] mt-4">No card required. First payout available at $5.</p>
         </div>
