@@ -6,6 +6,7 @@ const cookieSession = require('cookie-session');
 const redirectEngine = require('./redirect-engine');
 const apiRoutes = require('./api-routes');
 const authRoutes = require('./auth-routes');
+const profileRoutes = require('./profile-routes');
 const { runMigrations } = require('./migrate');
 
 const app = express();
@@ -33,6 +34,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api', profileRoutes);
 app.use('/api', apiRoutes);
 
 // Safety-net route in case something links straight to the Express server's
