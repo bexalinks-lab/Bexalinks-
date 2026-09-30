@@ -261,14 +261,14 @@ function QuickShortener({ onCreated, toast }) {
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://your-long-destination-url.com/..."
             aria-label="Destination URL"
-            className="flex-1 bg-white/50 border border-white/60 rounded-full px-5 py-2.5 text-base sm:text-sm font-shorten text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="flex-1 bg-white border border-slate-300 hover:border-slate-400 rounded-full px-5 py-2.5 text-base sm:text-sm font-shorten text-[var(--ink)] placeholder-[var(--ink-faint)] transition-colors focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
           />
           <input
             value={alias}
             onChange={(e) => setAlias(e.target.value)}
             placeholder="custom-alias (optional)"
             aria-label="Custom alias"
-            className="sm:w-56 bg-white/50 border border-white/60 rounded-full px-5 py-2.5 text-base sm:text-sm font-shorten text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="sm:w-56 bg-white border border-slate-300 hover:border-slate-400 rounded-full px-5 py-2.5 text-base sm:text-sm font-shorten text-[var(--ink)] placeholder-[var(--ink-faint)] transition-colors focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
           />
         </div>
 
