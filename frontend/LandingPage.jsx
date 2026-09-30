@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight, Globe2, Landmark, Link2, Menu, ShieldCheck, Wallet, Users, Copy, X,
   TrendingUp, LayoutDashboard, Headset, CheckCircle2, Star, ArrowUp, Share2,
+  EyeOff, Lock, Clock, DollarSign, Sparkles, ChevronRight,
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
@@ -55,16 +56,19 @@ function FooterIcons() {
   );
 }
 
-// A gradient, glossy circular icon badge — the "3D widget icon" motif from
-// the reference boards, reused everywhere an icon appears.
+// App-icon tile: dark glossy squircle with a bright glyph (like a phone
+// home-screen icon). The accent colour is derived from the old gradient
+// string, so existing callers keep working.
+const TINTS = { indigo: '#818cf8', violet: '#a78bfa', purple: '#c084fc', sky: '#38bdf8', blue: '#60a5fa', cyan: '#22d3ee', pink: '#f472b6', rose: '#fb7185', emerald: '#34d399', teal: '#2dd4bf', amber: '#fbbf24', orange: '#fb923c' };
+function tintOf(gradient = '') {
+  const m = gradient.match(/(indigo|violet|purple|sky|blue|cyan|pink|rose|emerald|teal|amber|orange)/);
+  return TINTS[m ? m[1] : 'violet'];
+}
 function IconBadge({ icon: Icon, gradient, size = 44 }) {
+  const tint = tintOf(gradient);
   return (
-    <div
-      className={`relative shrink-0 rounded-2xl ${gradient} flex items-center justify-center shadow-lg overflow-hidden`}
-      style={{ width: size, height: size }}
-    >
-      <div className="glass-shine" />
-      <Icon size={size * 0.46} strokeWidth={2} className="text-white relative z-10" />
+    <div className="app-icon" style={{ width: size, height: size }}>
+      <Icon size={size * 0.46} strokeWidth={1.9} className="relative z-10" style={{ color: tint, filter: `drop-shadow(0 0 6px ${tint}88)` }} />
     </div>
   );
 }
@@ -216,11 +220,7 @@ function SectionHead({ eyebrow, title, sub, className = '' }) {
 function WidgetStat({ label, value, sublabel, gradient, icon: Icon }) {
   return (
     <div className="lift card-x p-5">
-      {Icon && (
-        <span className={`relative z-10 mb-4 w-10 h-10 rounded-2xl ${gradient} flex items-center justify-center shadow-md`}>
-          <Icon size={18} className="text-white" />
-        </span>
-      )}
+      {Icon && <div className="relative z-10 mb-4"><IconBadge icon={Icon} gradient={gradient} size={44} /></div>}
       <p className="text-[11px] font-body font-semibold uppercase tracking-wider text-[var(--ink-faint)] mb-1.5 relative z-10 flex items-center gap-2"><span className={`w-1 h-3.5 rounded-full ${gradient}`} />{label}</p>
       <p className="font-display font-extrabold text-[2rem] leading-none text-[var(--ink)] relative z-10">{value}</p>
       {sublabel && <p className="text-xs font-body text-[var(--ink-faint)] mt-1 relative z-10">{sublabel}</p>}
@@ -401,7 +401,7 @@ function DashboardMockup() {
         </div>
       </div>
       <div className="float-chip glass-strong absolute -top-4 -right-1 sm:-right-6 px-3.5 py-2.5 flex items-center gap-2" style={{ borderRadius: 20 }}>
-        <span className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center"><CheckCircle2 size={15} className="text-white" /></span>
+        <IconBadge icon={CheckCircle2} gradient="emerald" size={30} />
         <span className="text-xs font-body leading-tight"><b className="text-[var(--ink)]">Payout sent</b><br /><span className="text-[var(--ink-faint)]">$50.00 · UPI</span></span>
       </div>
     </div>
@@ -693,67 +693,82 @@ const PAYOUT_METHODS = [
   // Official artwork: { name: 'PayPal', note: '…', src: '/payments/paypal.svg' }
 ];
 
-function PayoutCard({ name, note, Logo, src }) {
-  return (
-    <div className="flex items-center gap-3 shrink-0 snap-center">
-      <div className="shrink-0 w-11 h-11 rounded-2xl bg-white border border-white/80 shadow-[0_6px_16px_-8px_rgba(29,27,46,0.35)] flex items-center justify-center">
-        {src ? <img src={src} alt="" className="w-7 h-7 object-contain" /> : <Logo />}
-      </div>
-      <div>
-        <h3 className="font-display font-semibold text-base text-[var(--ink)] leading-tight whitespace-nowrap">{name}</h3>
-        <p className="font-body text-xs text-[var(--ink-faint)]">{note}</p>
-      </div>
-    </div>
-  );
-}
-
 function Payouts() {
+  const [i, setI] = useState(0);
+  const n = PAYOUT_METHODS.length;
+  const cur = PAYOUT_METHODS[i];
+  // Offset of each card from the centre, wrapped into -2..2.
+  const offset = (idx) => ((idx - i + n + 2) % n) - 2;
   return (
     <section id="payouts" className="px-6 sm:px-10 max-w-5xl mx-auto py-10 relative">
-      <div className="absolute top-0 left-1/4 w-56 h-56 rounded-full bg-gradient-to-br from-sky-300 to-indigo-400 opacity-20 blur-3xl -z-10" />
       <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">Five ways to get paid, worldwide.</h2>
       <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">Pick the one that suits where you live and withdraw to it.</p>
-      <div className="flex gap-8 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 sm:mx-0 px-6 sm:px-0" style={{ scrollbarWidth: 'none' }}>
-        {PAYOUT_METHODS.map((m) => (
-          <PayoutCard key={m.name} {...m} />
-        ))}
+      <div className="pay-panel">
+        <div className="pay-rings" aria-hidden="true" />
+        <div className="pay-stage">
+          {PAYOUT_METHODS.map((m, idx) => {
+            const k = offset(idx);
+            return (
+              <button
+                key={m.name}
+                type="button"
+                className="pay-card"
+                data-k={k}
+                onClick={() => setI(idx)}
+                aria-label={k === 0 ? m.name : `Show ${m.name}`}
+                aria-current={k === 0}
+              >
+                <span className="pay-tag">Same day</span>
+                <span className="pay-dot" />
+                <span className="pay-logo">{m.src ? <img src={m.src} alt="" className="w-9 h-9 object-contain" /> : <m.Logo />}</span>
+                <span className="pay-name">{m.name}</span>
+                <span className="pay-note">{m.note}</span>
+              </button>
+            );
+          })}
+        </div>
+        <a href="/signup" className="pay-btn">Withdraw to {cur.name}</a>
+        <div className="pay-dots" aria-hidden="true">
+          {PAYOUT_METHODS.map((m, idx) => <span key={m.name} className={idx === i ? 'on' : ''} />)}
+        </div>
       </div>
-      <p className="text-xs font-body text-[var(--ink-faint)] mt-2 text-center sm:hidden">← swipe →</p>
     </section>
   );
 }
 
 const GAME_CHANGER_POINTS = [
-  'No captcha & adult ads',
-  'Advanced security options',
-  'Regular payments',
-  '$5.00 minimum withdrawal',
-  '5 international & local payout methods',
+  { icon: EyeOff, text: 'No captcha & adult ads' },
+  { icon: Lock, text: 'Advanced security options' },
+  { icon: Clock, text: 'Regular payments' },
+  { icon: DollarSign, text: '$5.00 minimum withdrawal' },
+  { icon: Globe2, text: '5 international & local payout methods' },
 ];
 
 function WhyChooseUs() {
   return (
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10 relative">
-      <div className="absolute top-10 right-1/4 w-64 h-64 rounded-full bg-gradient-to-br from-violet-300 to-pink-300 opacity-20 blur-3xl -z-10" />
-      <div className="card-x p-8 sm:p-12 grid sm:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
-        <div>
-          <h2 className="font-display font-bold text-3xl sm:text-4xl text-[var(--ink)] mb-4 leading-tight">
-            Bexalink is a game-changer.
+      <div className="suggest-card">
+        <div className="suggest-head">
+          <h2 className="font-display font-bold text-[1.35rem] sm:text-2xl leading-tight text-[var(--ink)] flex items-center gap-2">
+            <Sparkles size={18} strokeWidth={2} className="shrink-0" /> Bexalink is a game-changer.
           </h2>
-          <p className="font-body text-[var(--ink-soft)] text-sm sm:text-base leading-relaxed max-w-md">
-            We built Bexalink with hardworking creators in mind — fostering
-            growth and success together, without the friction that slows
-            other shorteners down.
+          <p className="font-body text-[12.5px] leading-snug text-[var(--ink-soft)] mt-1.5">
+            Built for hardworking creators, without the friction that slows other shorteners down.
           </p>
         </div>
-        <ul className="flex flex-col gap-3">
-          {GAME_CHANGER_POINTS.map((point) => (
-            <li key={point} className="bg-white/90 border border-white rounded-full px-4 py-3 flex items-center gap-3 shadow-[0_6px_14px_-8px_rgba(29,27,46,.25)]">
-              <CheckCircle2 size={20} className="text-emerald-500 shrink-0" strokeWidth={2.2} />
-              <span className="font-body text-sm font-medium text-[var(--ink)]">{point}</span>
+        <ul>
+          {GAME_CHANGER_POINTS.map(({ icon: Icon, text }) => (
+            <li key={text} className="suggest-row">
+              <span className="suggest-ico"><Icon size={17} strokeWidth={1.9} /></span>
+              <span className="flex-1 font-body text-[15px] font-medium text-[var(--ink)] leading-tight">{text}</span>
+              <ChevronRight size={18} className="text-[var(--ink-soft)] shrink-0" />
             </li>
           ))}
         </ul>
+        <a href="/signup" className="suggest-cta">
+          <span className="suggest-ico suggest-ico-lg"><ArrowUp size={18} className="rotate-45" /></span>
+          <span className="font-body text-xs text-[var(--ink-faint)]">start earning…</span>
+        </a>
       </div>
     </section>
   );
