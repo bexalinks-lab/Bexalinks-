@@ -103,8 +103,8 @@ export function savePrefs(p) {
 
 // ───────────────────────── small UI pieces ─────────────────────────
 export const INPUT =
-  'w-full bg-white/60 border border-white/70 rounded-2xl px-4 py-2.5 text-base sm:text-sm font-body ' +
-  'text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400';
+  'w-full bg-white border border-slate-300 hover:border-slate-400 rounded-2xl px-4 py-2.5 text-base sm:text-sm font-body ' +
+  'text-[var(--ink)] placeholder-[var(--ink-faint)] transition-colors focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200';
 
 export function Skeleton({ className = 'h-6 w-16' }) {
   return <span className={`inline-block rounded-lg bg-white/60 animate-pulse align-middle ${className}`} />;
