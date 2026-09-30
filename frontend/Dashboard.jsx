@@ -22,209 +22,18 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import {
   Link2, Wallet, Users, TrendingUp, Copy, Settings, LogOut, LayoutDashboard,
   RefreshCw, ExternalLink, Search, Check, Share2, AlertCircle, Shield, HelpCircle,
+  UserCircle, CreditCard,
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 import HelpView from './HelpView';
-
-const BRAND_GRADIENT = 'bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500';
-const MIN_PAYOUT = 5;
-const PAGE_SIZE = 10;
-
-// ───────────────────────── helpers ─────────────────────────
-const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
-const money = (v) => `$${num(v).toFixed(2)}`;
-const fmtInt = (v) => num(v).toLocaleString();
-
-function parseDay(d) {
-  if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) return new Date(`${d}T00:00:00`);
-  return new Date(d);
-}
-function fmtDay(d) {
-  const dt = parseDay(d);
-  return Number.isNaN(dt.getTime()) ? String(d) : dt.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-}
-function fmtDate(d) {
-  const dt = parseDay(d);
-  return Number.isNaN(dt.getTime()) ? '—' : dt.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
-async function copyText(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    try {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      const ok = document.execCommand('copy');
-      document.body.removeChild(ta);
-      return ok;
-    } catch {
-      return false;
-    }
-  }
-}
-
-// Short links live on the same domain as the app. If you serve them from a
-// different domain, return that domain here instead.
-const shortBase = () => (typeof window !== 'undefined' ? window.location.origin : '');
-const linkCode = (l) => l.short_code || l.custom_alias || '';
-const shortUrlOf = (l) => l.short_url || l.shortUrl || `${shortBase()}/${linkCode(l)}`;
-
-async function api(url, options) {
-  const res = await fetch(url, { credentials: 'same-origin', ...options });
-  let data = null;
-  try { data = await res.json(); } catch { /* empty / non-JSON body */ }
-  if (!res.ok) {
-    const err = new Error((data && data.error) || `Request failed (${res.status})`);
-    err.status = res.status;
-    throw err;
-  }
-  return data;
-}
-
-function useFetch(url, { enabled = true } = {}) {
-  const [state, setState] = useState({ data: null, error: null, loading: enabled });
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    if (!enabled || !url) return undefined;
-    let cancelled = false;
-    setState((s) => ({ ...s, loading: true, error: null }));
-    api(url)
-      .then((data) => { if (!cancelled) setState({ data, error: null, loading: false }); })
-      .catch((error) => { if (!cancelled) setState((s) => ({ data: s.data, error, loading: false })); });
-    return () => { cancelled = true; };
-  }, [url, enabled, tick]);
-  const reload = useCallback(() => setTick((t) => t + 1), []);
-  return { ...state, reload };
-}
-
-function useToast() {
-  const [toast, setToast] = useState(null);
-  useEffect(() => {
-    if (!toast) return undefined;
-    const t = setTimeout(() => setToast(null), 2600);
-    return () => clearTimeout(t);
-  }, [toast]);
-  const show = useCallback((text, tone = 'ok') => setToast({ text, tone, id: Date.now() }), []);
-  return [toast, show];
-}
-
-const PREFS_KEY = 'bexalink.payoutPrefs';
-function loadPrefs() {
-  try { return JSON.parse(window.localStorage.getItem(PREFS_KEY)) || {}; } catch { return {}; }
-}
-function savePrefs(p) {
-  try { window.localStorage.setItem(PREFS_KEY, JSON.stringify(p)); } catch { /* storage unavailable */ }
-}
-
-// ───────────────────────── small UI pieces ─────────────────────────
-const INPUT =
-  'w-full bg-white/60 border border-white/70 rounded-2xl px-4 py-2.5 text-base sm:text-sm font-body ' +
-  'text-[var(--ink)] placeholder-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-indigo-400';
-
-function Skeleton({ className = 'h-6 w-16' }) {
-  return <span className={`inline-block rounded-lg bg-white/60 animate-pulse align-middle ${className}`} />;
-}
-
-function PageHeader({ title, subtitle, action }) {
-  return (
-    <div className="flex items-start justify-between gap-3 mb-5 px-1">
-      <div>
-        <h1 className="font-display font-bold text-xl sm:text-2xl text-[var(--ink)]">{title}</h1>
-        {subtitle && <p className="font-body text-sm text-[var(--ink-soft)] mt-0.5">{subtitle}</p>}
-      </div>
-      {action}
-    </div>
-  );
-}
-
-function ErrorNote({ message, onRetry }) {
-  return (
-    <div role="alert" className="glass rounded-2xl px-4 py-3 mb-5 flex items-center gap-3 text-sm font-body text-rose-700">
-      <AlertCircle size={16} className="shrink-0" />
-      <span className="flex-1">{message}</span>
-      {onRetry && (
-        <button type="button" onClick={onRetry} className="btn btn-secondary px-3 py-1.5 rounded-full text-xs">
-          Retry
-        </button>
-      )}
-    </div>
-  );
-}
-
-function EmptyState({ children }) {
-  return (
-    <div className="glass rounded-3xl px-5 py-10 text-center">
-      <p className="text-sm font-body text-[var(--ink-faint)]">{children}</p>
-    </div>
-  );
-}
-
-function StatusBadge({ status }) {
-  const s = String(status || 'unknown').toLowerCase();
-  const tone =
-    ['active', 'paid', 'completed', 'approved'].includes(s) ? 'bg-emerald-500/15 text-emerald-700'
-    : ['pending', 'processing', 'review'].includes(s) ? 'bg-amber-500/15 text-amber-700'
-    : ['blocked', 'rejected', 'failed', 'cancelled'].includes(s) ? 'bg-rose-500/15 text-rose-700'
-    : 'bg-slate-500/10 text-slate-500';
-  return <span className={`text-xs px-2.5 py-1 rounded-full font-body font-medium capitalize ${tone}`}>{s}</span>;
-}
-
-function Chips({ options, value, onChange, label }) {
-  return (
-    <div role="group" aria-label={label} className="flex flex-wrap gap-2">
-      {options.map((o) => (
-        <button
-          key={o.value}
-          type="button"
-          onClick={() => onChange(o.value)}
-          aria-pressed={value === o.value}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-body font-medium transition-colors ${
-            value === o.value ? 'bg-[var(--ink)] text-white' : 'glass text-[var(--ink-soft)] hover:bg-white/60'
-          }`}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function StatCard({ label, value, sublabel, gradient, loading }) {
-  return (
-    <div className="glass rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-      <div className={`absolute -top-8 -right-8 w-24 h-24 rounded-full ${gradient} opacity-25 blur-2xl`} />
-      <p className="text-xs font-body font-medium text-[var(--ink-faint)] mb-1.5 relative z-10">{label}</p>
-      <p className="font-display font-bold text-xl sm:text-2xl text-[var(--ink)] relative z-10">
-        {loading ? <Skeleton className="h-7 w-20" /> : value}
-      </p>
-      {sublabel && !loading && <p className="text-xs font-body text-[var(--ink-faint)] mt-1 relative z-10">{sublabel}</p>}
-    </div>
-  );
-}
-
-function Toast({ toast }) {
-  return (
-    <div aria-live="polite" className="pointer-events-none fixed bottom-6 left-0 right-0 z-50 flex justify-center px-4">
-      {toast && (
-        <div
-          key={toast.id}
-          className={`glass-strong rounded-full px-5 py-2.5 text-sm font-body font-medium shadow-lg flex items-center gap-2 ${
-            toast.tone === 'error' ? 'text-rose-700' : 'text-[var(--ink)]'
-          }`}
-        >
-          {toast.tone === 'error' ? <AlertCircle size={15} /> : <Check size={15} className="text-emerald-600" />}
-          {toast.text}
-        </div>
-      )}
-    </div>
-  );
-}
+import ReferralsView from './ReferralsView';
+import ProfileView from './ProfileView';
+import PaymentAccountsView, { MethodTile, methodLabel } from './PaymentAccountsView';
+import {
+  BRAND_GRADIENT, MIN_PAYOUT, PAGE_SIZE, num, money, fmtInt, parseDay, fmtDay, fmtDate, copyText,
+  shortBase, linkCode, shortUrlOf, api, useFetch, useToast, loadPrefs, savePrefs, INPUT, Skeleton,
+  PageHeader, ErrorNote, EmptyState, StatusBadge, Chips, StatCard, Toast, PAYOUT_METHODS,
+} from './dashboard-kit';
 
 // ───────────────────────── navigation ─────────────────────────
 const TABS = [
@@ -233,6 +42,8 @@ const TABS = [
   { key: 'earnings', label: 'Earnings', icon: TrendingUp, gradient: 'bg-gradient-to-br from-pink-400 to-rose-500' },
   { key: 'referrals', label: 'Referrals', icon: Users, gradient: 'bg-gradient-to-br from-sky-400 to-blue-500' },
   { key: 'payouts', label: 'Payouts', icon: Wallet, gradient: 'bg-gradient-to-br from-violet-400 to-purple-600' },
+  { key: 'accounts', label: 'Payment accounts', icon: CreditCard, gradient: 'bg-gradient-to-br from-amber-400 to-orange-500' },
+  { key: 'profile', label: 'Profile', icon: UserCircle, gradient: 'bg-gradient-to-br from-fuchsia-400 to-pink-600' },
   { key: 'settings', label: 'Settings', icon: Settings, gradient: 'bg-gradient-to-br from-slate-400 to-slate-600' },
   { key: 'help', label: 'Help Center', icon: HelpCircle, gradient: 'bg-gradient-to-br from-teal-400 to-emerald-600' },
 ];
@@ -813,104 +624,7 @@ function EarningsView({ summary, loading }) {
   );
 }
 
-function ReferralsView({ referral, summary, loading, toast }) {
-  const { url, count, list, error, loading: refLoading } = referral;
-
-  async function copy() {
-    if (!url) return;
-    const ok = await copyText(url);
-    toast(ok ? 'Referral link copied' : 'Could not copy', ok ? 'ok' : 'error');
-  }
-  async function share() {
-    if (!url) return;
-    if (navigator.share) {
-      try { await navigator.share({ title: 'Bexalink', text: 'Shorten links and get paid for every view.', url }); } catch { /* dismissed */ }
-    } else {
-      copy();
-    }
-  }
-
-  return (
-    <>
-      <PageHeader title="Referrals" subtitle="Earn 10% of what publishers you refer make, for life." />
-
-      <div className="relative p-6 mb-6 overflow-hidden glass-strong" style={{ borderRadius: 40 }}>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-sky-200/60 via-indigo-100/40 to-pink-100/50" />
-        <p className="font-display font-bold text-lg text-[var(--ink)] mb-1">Your referral link</p>
-        <p className="font-body text-sm text-[var(--ink-soft)] mb-4">Share it anywhere. Anyone who signs up through it is linked to you.</p>
-        {url ? (
-          <>
-            <div className="flex items-center gap-2 bg-white/70 border border-white/80 rounded-full pl-5 pr-2 py-2 mb-3 min-w-0">
-              <span className="flex-1 truncate text-sm font-body text-[var(--ink)]">{url}</span>
-              <button type="button" onClick={copy} aria-label="Copy referral link" className="btn btn-secondary w-9 h-9 shrink-0 rounded-full">
-                <Copy size={14} />
-              </button>
-            </div>
-            <button type="button" onClick={share} className="btn btn-primary font-body px-5 py-2.5 rounded-full text-sm">
-              <Share2 size={14} /> Share
-            </button>
-          </>
-        ) : refLoading ? (
-          <Skeleton className="h-11 w-full" />
-        ) : (
-          <p className="text-sm font-body text-[var(--ink-soft)]">
-            {error ? "Your referral link isn't available yet." : 'Your referral link will appear here once it is enabled on your account.'}
-          </p>
-        )}
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 max-w-md">
-        <StatCard loading={loading} label="Referral income" value={money(summary?.referralEarnings)} gradient="bg-violet-500" />
-        <StatCard loading={refLoading} label="Publishers referred" value={count != null ? fmtInt(count) : '—'} gradient="bg-sky-400" />
-      </div>
-
-      {list.length > 0 && (
-        <div className="glass rounded-3xl overflow-hidden">
-          <table className="w-full text-sm font-body">
-            <thead>
-              <tr className="border-b border-white/40 text-left text-[var(--ink-faint)] text-xs">
-                <th className="px-5 py-3 font-medium">Publisher</th>
-                <th className="px-5 py-3 font-medium">Joined</th>
-                <th className="px-5 py-3 font-medium text-right">You earned</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.map((r, i) => (
-                <tr key={r.id ?? i} className="border-b border-white/30 last:border-0">
-                  <td className="px-5 py-3 text-[var(--ink)]">{r.name || r.username || r.email || `Publisher ${i + 1}`}</td>
-                  <td className="px-5 py-3 text-[var(--ink-soft)]">{fmtDate(r.joined_at || r.created_at)}</td>
-                  <td className="px-5 py-3 text-right font-semibold text-[var(--ink)]">{money(r.earnings ?? r.earned)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </>
-  );
-}
-
-// ── Payouts ──
-const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
-const PAYOUT_METHODS = [
-  { key: 'paypal', label: 'PayPal', field: 'PayPal email', placeholder: 'you@example.com', check: (v) => isEmail(v) || 'Enter a valid PayPal email.' },
-  { key: 'payoneer', label: 'Payoneer', field: 'Payoneer email', placeholder: 'you@example.com', check: (v) => isEmail(v) || 'Enter a valid Payoneer email.' },
-  {
-    key: 'bank', label: 'Bank transfer', field: 'Bank details', multiline: true, sensitive: true,
-    placeholder: 'Account holder, bank name, account number, IFSC / SWIFT',
-    check: (v) => v.length >= 15 || 'Add the account holder, bank, account number and IFSC / SWIFT.',
-  },
-  {
-    key: 'usdt', label: 'USDT', field: 'Wallet address', placeholder: 'Wallet address', networks: ['TRC20', 'ERC20', 'BEP20'],
-    check: (v, network) => {
-      if (network === 'TRC20') return /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(v) || 'A TRC20 address starts with T and is 34 characters long.';
-      return /^0x[a-fA-F0-9]{40}$/.test(v) || `A ${network} address starts with 0x and is 42 characters long.`;
-    },
-  },
-  { key: 'upi', label: 'UPI', field: 'UPI ID', placeholder: 'name@bank', check: (v) => /^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(v) || 'Enter a valid UPI ID, e.g. name@bank.' },
-];
-
-function PayoutsView({ summary, loading, payoutsQ, reloadSummary, toast }) {
+function PayoutsView({ summary, loading, payoutsQ, accountsQ, reloadSummary, go, toast }) {
   const available = num(summary?.availableBalance);
   const [method, setMethod] = useState('paypal');
   const [network, setNetwork] = useState('TRC20');
@@ -919,6 +633,12 @@ function PayoutsView({ summary, loading, payoutsQ, reloadSummary, toast }) {
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+
+  // Accounts saved under "Payment accounts": pay to one of them, or type new details.
+  const saved = Array.isArray(accountsQ.data?.methods) ? accountsQ.data.methods : [];
+  const [pick, setPick] = useState(null); // saved account id, 'new', or null = not chosen yet
+  const chosen = pick === 'new' ? null : saved.find((m) => m.id === pick) || (pick === null ? saved.find((m) => m.isPrimary) || saved[0] : null);
+  const useSaved = !!chosen;
 
   // Pre-fill from what was saved on this device.
   useEffect(() => {
@@ -951,17 +671,21 @@ function PayoutsView({ summary, loading, payoutsQ, reloadSummary, toast }) {
     if (amt < MIN_PAYOUT) return setError(`The minimum payout is ${money(MIN_PAYOUT)}.`);
     if (amt > available + 0.0001) return setError(`You only have ${money(available)} available.`);
     if (Math.round(amt * 100) / 100 !== amt) return setError('Use at most two decimal places.');
-    const verdict = cfg.check(acct, network);
-    if (verdict !== true) return setError(verdict);
+    if (!useSaved) {
+      const verdict = cfg.check(acct, network);
+      if (verdict !== true) return setError(verdict);
+    }
 
     setBusy(true);
     try {
       await api('/api/payouts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: amt, method, account: acct, ...(cfg.networks ? { network } : {}) }),
+        body: JSON.stringify(useSaved
+          ? { amount: amt, paymentMethodId: chosen.id }
+          : { amount: amt, method, account: acct, ...(cfg.networks ? { network } : {}) }),
       });
-      if (remember && !cfg.sensitive) savePrefs({ method, network, account: acct });
+      if (!useSaved && remember && !cfg.sensitive) savePrefs({ method, network, account: acct });
       setAmount('');
       toast('Payout requested');
       reloadSummary();
@@ -995,27 +719,63 @@ function PayoutsView({ summary, loading, payoutsQ, reloadSummary, toast }) {
         <form onSubmit={submit} className="glass rounded-3xl p-5 flex flex-col gap-4">
           <p className="text-sm font-body font-semibold text-[var(--ink)]">Request a payout</p>
 
-          <div>
-            <p className="text-xs font-body font-medium text-[var(--ink-faint)] mb-2">Method</p>
-            <Chips label="Payout method" value={method} onChange={changeMethod} options={PAYOUT_METHODS.map((m) => ({ value: m.key, label: m.label }))} />
-          </div>
-
-          {cfg.networks && (
+          {saved.length > 0 && (
             <div>
-              <p className="text-xs font-body font-medium text-[var(--ink-faint)] mb-2">Network</p>
-              <Chips label="USDT network" value={network} onChange={(n) => { setNetwork(n); setError(null); }} options={cfg.networks.map((n) => ({ value: n, label: n }))} />
+              <p className="text-xs font-body font-medium text-[var(--ink-faint)] mb-2">Pay to</p>
+              <ul className="flex flex-col gap-2">
+                {saved.map((m) => {
+                  const on = chosen?.id === m.id;
+                  return (
+                    <li key={m.id}>
+                      <button type="button" onClick={() => { setPick(m.id); setError(null); }} aria-pressed={on}
+                        className={`w-full flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors ${on ? 'bg-white/80 border border-black' : 'glass hover:bg-white/60'}`}>
+                        <MethodTile method={m.method} size={36} />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-body font-medium text-[var(--ink)]">
+                            {methodLabel(m.method)}{m.network ? ` · ${m.network}` : ''}
+                            {m.isPrimary && <span className="ml-2 text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700">Primary</span>}
+                          </span>
+                          <span className="block text-xs font-body text-[var(--ink-faint)] truncate">{m.maskedAccount}</span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+                <li>
+                  <button type="button" onClick={() => { setPick('new'); setError(null); }} aria-pressed={!useSaved}
+                    className={`w-full rounded-2xl px-4 py-2.5 text-left text-sm font-body font-medium transition-colors ${!useSaved ? 'bg-white/80 border border-black text-[var(--ink)]' : 'glass text-[var(--ink-soft)] hover:bg-white/60'}`}>
+                    Use different details
+                  </button>
+                </li>
+              </ul>
             </div>
           )}
 
-          <label className="block">
-            <span className="block text-xs font-body font-medium text-[var(--ink-faint)] mb-2">{cfg.field}</span>
-            {cfg.multiline ? (
-              <textarea value={account} onChange={(e) => setAccount(e.target.value)} rows={3} placeholder={cfg.placeholder} className={`${INPUT} resize-none`} />
-            ) : (
-              <input value={account} onChange={(e) => setAccount(e.target.value)} placeholder={cfg.placeholder}
-                type={cfg.key === 'paypal' || cfg.key === 'payoneer' ? 'email' : 'text'} autoComplete="off" spellCheck={false} className={INPUT} />
-            )}
-          </label>
+          {!useSaved && (
+            <>
+              <div>
+                <p className="text-xs font-body font-medium text-[var(--ink-faint)] mb-2">Method</p>
+                <Chips label="Payout method" value={method} onChange={changeMethod} options={PAYOUT_METHODS.map((m) => ({ value: m.key, label: m.label }))} />
+              </div>
+
+              {cfg.networks && (
+                <div>
+                  <p className="text-xs font-body font-medium text-[var(--ink-faint)] mb-2">Network</p>
+                  <Chips label="USDT network" value={network} onChange={(n) => { setNetwork(n); setError(null); }} options={cfg.networks.map((n) => ({ value: n, label: n }))} />
+                </div>
+              )}
+
+              <label className="block">
+                <span className="block text-xs font-body font-medium text-[var(--ink-faint)] mb-2">{cfg.field}</span>
+                {cfg.multiline ? (
+                  <textarea value={account} onChange={(e) => setAccount(e.target.value)} rows={3} placeholder={cfg.placeholder} className={`${INPUT} resize-none`} />
+                ) : (
+                  <input value={account} onChange={(e) => setAccount(e.target.value)} placeholder={cfg.placeholder}
+                    type={cfg.key === 'paypal' || cfg.key === 'payoneer' ? 'email' : 'text'} autoComplete="off" spellCheck={false} className={INPUT} />
+                )}
+              </label>
+            </>
+          )}
 
           <label className="block">
             <span className="block text-xs font-body font-medium text-[var(--ink-faint)] mb-2">Amount (USD)</span>
@@ -1028,7 +788,7 @@ function PayoutsView({ summary, loading, payoutsQ, reloadSummary, toast }) {
             </div>
           </label>
 
-          {!cfg.sensitive && (
+          {!useSaved && !cfg.sensitive && (
             <label className="flex items-center gap-2 text-xs font-body text-[var(--ink-soft)] cursor-pointer">
               <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="accent-indigo-500" />
               Remember these details on this device
@@ -1040,6 +800,11 @@ function PayoutsView({ summary, loading, payoutsQ, reloadSummary, toast }) {
           <button type="submit" disabled={busy || loading || available < MIN_PAYOUT} className="btn btn-primary font-body px-6 py-3 rounded-full text-sm">
             {busy ? 'Requesting…' : 'Request payout'}
           </button>
+          {saved.length === 0 && !accountsQ.loading && (
+            <button type="button" onClick={() => go('accounts')} className="text-xs font-body font-medium text-indigo-600 hover:underline self-start -mt-2">
+              Save a payment account for next time
+            </button>
+          )}
         </form>
       </div>
 
@@ -1081,7 +846,7 @@ function PayoutsView({ summary, loading, payoutsQ, reloadSummary, toast }) {
   );
 }
 
-function SettingsView({ summary, toast }) {
+function SettingsView({ summary, go, toast }) {
   const [prefs, setPrefs] = useState({});
   useEffect(() => { setPrefs(loadPrefs()); }, []);
   const saved = PAYOUT_METHODS.find((m) => m.key === prefs.method);
@@ -1100,9 +865,14 @@ function SettingsView({ summary, toast }) {
       <div className="glass rounded-3xl p-5 mb-4 max-w-xl">
         <p className="text-sm font-body font-semibold text-[var(--ink)] mb-1">Account</p>
         <p className="text-sm font-body text-[var(--ink-soft)] mb-4">{identity ? `Signed in as ${identity}.` : 'You are signed in.'}</p>
-        <a href="/logout" className="btn btn-secondary font-body px-5 py-2.5 rounded-full text-sm">
-          <LogOut size={14} /> Log out
-        </a>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => go('profile')} className="btn btn-primary font-body px-5 py-2.5 rounded-full text-sm">
+            <UserCircle size={14} /> Edit profile
+          </button>
+          <a href="/logout" className="btn btn-secondary font-body px-5 py-2.5 rounded-full text-sm">
+            <LogOut size={14} /> Log out
+          </a>
+        </div>
       </div>
 
       <div className="glass rounded-3xl p-5 max-w-xl">
@@ -1162,6 +932,8 @@ export default function Dashboard() {
   const linksQ = useFetch('/api/dashboard/links');
   const payoutsQ = useFetch('/api/payouts');
   const referralsQ = useFetch('/api/dashboard/referrals');
+  const profileQ = useFetch('/api/profile');
+  const accountsQ = useFetch('/api/payment-methods');
 
   const summary = summaryQ.data && !summaryQ.data.error ? summaryQ.data : null;
   const signedOut = [summaryQ, linksQ, payoutsQ].some((q) => q.error?.status === 401);
@@ -1188,8 +960,9 @@ export default function Dashboard() {
     const url = d.referralUrl || (code ? `${origin}/signup?ref=${encodeURIComponent(code)}` : null);
     const list = Array.isArray(d.referrals) ? d.referrals : [];
     const count = d.count ?? d.total ?? (list.length || null);
-    return { url, count, list, error: referralsQ.error, loading: referralsQ.loading && !url };
+    return { url, code, count, list, error: referralsQ.error, loading: referralsQ.loading && !url };
   }, [referralsQ.data, referralsQ.error, referralsQ.loading, summary]);
+  const refMeta = referralsQ.data && !referralsQ.data.error ? referralsQ.data : {};
 
   const copyReferral = useCallback(async () => {
     if (!referral.url) { go('referrals'); return; }
@@ -1212,11 +985,19 @@ export default function Dashboard() {
         )}
         {tab === 'links' && <LinksView linksQ={linksQ} toast={showToast} />}
         {tab === 'earnings' && <EarningsView summary={summary} loading={loadingSummary} />}
-        {tab === 'referrals' && <ReferralsView referral={referral} summary={summary} loading={loadingSummary} toast={showToast} />}
-        {tab === 'payouts' && (
-          <PayoutsView summary={summary} loading={loadingSummary} payoutsQ={payoutsQ} reloadSummary={summaryQ.reload} toast={showToast} />
+        {tab === 'referrals' && (
+          <ReferralsView referral={referral} code={referral.code} ratePercent={refMeta.ratePercent ?? 10} last30Days={refMeta.last30Days}
+            summary={summary} loading={loadingSummary} toast={showToast} onRetry={referralsQ.reload} />
         )}
-        {tab === 'settings' && <SettingsView summary={summary} toast={showToast} />}
+        {tab === 'payouts' && (
+          <PayoutsView summary={summary} loading={loadingSummary} payoutsQ={payoutsQ} accountsQ={accountsQ}
+            reloadSummary={summaryQ.reload} go={go} toast={showToast} />
+        )}
+        {tab === 'accounts' && <PaymentAccountsView accountsQ={accountsQ} toast={showToast} />}
+        {tab === 'profile' && (
+          <ProfileView profileQ={profileQ} summary={summary} summaryLoading={loadingSummary} toast={showToast} onSaved={profileQ.reload} />
+        )}
+        {tab === 'settings' && <SettingsView summary={summary} go={go} toast={showToast} />}
         {tab === 'help' && <HelpView PageHeader={PageHeader} toast={showToast} />}
       </main>
 
