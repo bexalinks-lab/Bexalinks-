@@ -66,6 +66,36 @@ async function runMigrations() {
   } catch (err) {
     console.error('[migrate] Could not create support_tickets:', err.message);
   }
+
+  // ── Referral codes, user profiles, saved payment accounts ──────────────
+  // All idempotent — safe to run on every deploy.
+  try {
+    // Short shareable code. The volatile DEFAULT fills every existing user
+    // with its own random code and covers every future INSERT path
+    // (email signup, Google signup, ...) without touching those queries.
+    await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code VARCHAR(16)
+      UNIQUE DEFAULT upper(substr(md5(random()::text || clock_timestamp()::text), 1, 10))`);
+
+    await db.query(`CREATE TABLE IF NOT EXISTS user_profiles (
+      user_id     UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      first_name  VARCHAR(80),
+      last_name   VARCHAR(80),
+      phone       VARCHAR(24),
+      address1    VARCHAR(160),
+      address2    VARCHAR(160),
+      city        VARCHAR(80),
+      state       VARCHAR(80),
+      zip         VARCHAR(16),
+      country     VARCHAR(80),
+      updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    )`);
+
+    // A payment account that already has payouts can't be hard-deleted
+    // (payouts reference it), so removing it just archives it.
+    await db.query(`ALTER TABLE payment_methods ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ`);
+  } catch (err) {
+    console.error('[migrate] Could not apply referral/profile/payment-account changes:', err.message);
+  }
 }
 
 module.exports = { runMigrations };
