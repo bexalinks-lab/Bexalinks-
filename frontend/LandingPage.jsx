@@ -222,11 +222,11 @@ function Money({ v }) {
 
 function SectionHead({ eyebrow, title, sub, className = '' }) {
   return (
-    <div className={`mb-8 max-w-lg ${className}`}>
+    <Reveal from="left" className={`mb-8 max-w-lg ${className}`}>
       <span className="inline-flex glass rounded-full px-3 py-1 text-[11px] font-body font-semibold tracking-wider uppercase text-indigo-600 mb-3">{eyebrow}</span>
       <h2 className="font-display font-extrabold text-3xl sm:text-4xl leading-tight text-[var(--ink)] mb-2">{title}</h2>
       {sub && <p className="font-body text-[var(--ink-soft)] text-sm sm:text-base leading-relaxed">{sub}</p>}
-    </div>
+    </Reveal>
   );
 }
 
@@ -289,8 +289,10 @@ function StatsSection() {
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
       <SectionHead eyebrow="Live stats" title="Bexalink, by the numbers." sub="Live stats from our publisher network — updated in real time, no filler." />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {items.map((it) => (
-          <WidgetStat key={it.label} label={it.label} value={it.value} gradient={it.gradient} icon={it.icon} />
+        {items.map((it, n) => (
+          <Reveal key={it.label} from={n % 2 ? 'right' : 'left'} delay={Math.floor(n / 2) * 120}>
+            <WidgetStat label={it.label} value={it.value} gradient={it.gradient} icon={it.icon} />
+          </Reveal>
         ))}
       </div>
     </section>
@@ -355,17 +357,43 @@ function HeroIllustration() {
 }
 
 // Fades + slides a section up the first time it scrolls into view.
-function Reveal({ children, className = '' }) {
+// Scroll reveal: boxes slide in from the side (or rise / scale) when they enter the
+// viewport and play again when you scroll back to them.
+function Reveal({ children, className = '', from = 'up', delay = 0 }) {
   const ref = useRef(null);
   const [on, setOn] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el || !('IntersectionObserver' in window)) { setOn(true); return; }
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); io.disconnect(); } }, { threshold: 0.1 });
+    const io = new IntersectionObserver(([e]) => setOn(e.isIntersecting), { threshold: from === 'fade' ? 0 : 0.12, rootMargin: '0px 0px -6% 0px' });
     io.observe(el);
     return () => io.disconnect();
+  }, [from]);
+  return (
+    <div ref={ref} className={`reveal reveal-${from} ${on ? 'reveal-in' : ''} ${className}`} style={{ transitionDelay: on ? `${delay}ms` : '0ms' }}>
+      {children}
+    </div>
+  );
+}
+
+// Thin gradient bar at the very top that fills as you scroll down the page.
+function ScrollProgress() {
+  const bar = useRef(null);
+  useEffect(() => {
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      const v = h > 0 ? Math.min(1, window.scrollY / h) : 0;
+      if (bar.current) bar.current.style.transform = `scaleX(${v})`;
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (raf) cancelAnimationFrame(raf); };
   }, []);
-  return <div ref={ref} className={`reveal ${on ? 'reveal-in' : ''} ${className}`}>{children}</div>;
+  return <div ref={bar} className="scroll-progress" aria-hidden="true" />;
 }
 
 const MOCK_LINKS = [
@@ -449,14 +477,14 @@ function Hero() {
   return (
     <section className="relative px-6 sm:px-10 max-w-5xl mx-auto pt-12 sm:pt-20 pb-10 text-center">
       <Chain3D />
-      <h1 className="font-display font-extrabold text-[2.5rem] sm:text-6xl leading-[1.05] text-[var(--ink)] mb-5 max-w-2xl mx-auto">
+      <h1 style={{ animationDelay: '.05s' }} className="rise font-display font-extrabold text-[2.5rem] sm:text-6xl leading-[1.05] text-[var(--ink)] mb-5 max-w-2xl mx-auto">
         Every link you share can pay you back.
       </h1>
-      <p className="font-subheading text-[var(--ink-soft)] text-base sm:text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+      <p style={{ animationDelay: '.15s' }} className="rise font-subheading text-[var(--ink-soft)] text-base sm:text-lg mb-8 max-w-lg mx-auto leading-relaxed">
         Shorten links, track every verified view and get paid — with
         payouts you can request any day.
       </p>
-      <div className="flex justify-center mb-3"><HeroShortenBar /></div>
+      <div style={{ animationDelay: '.25s' }} className="rise flex justify-center mb-3"><HeroShortenBar /></div>
       <p className="text-xs font-body text-[var(--ink-faint)] mb-12">No card required. First payout available at $5.</p>
       <DashboardMockup />
     </section>
@@ -482,26 +510,27 @@ function HowItWorks() {
     <section id="how-it-works" className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
       <SectionHead eyebrow="How it works" title="From link to payout, three steps." sub="Shorten it, share it, get paid for it." />
       <div className="grid sm:grid-cols-3 gap-5">
-        <Step n="01" icon={Link2} gradient="bg-gradient-to-br from-indigo-400 to-indigo-600" title="Shorten your link">
+        <Reveal from="left" delay={0*120}><Step n="01" icon={Link2} gradient="bg-gradient-to-br from-indigo-400 to-indigo-600" title="Shorten your link">
           Paste any destination URL into your dashboard or the API. Bexalink
           returns a short link instantly.
-        </Step>
-        <Step n="02" icon={Globe2} gradient="bg-gradient-to-br from-sky-400 to-cyan-500" title="Share it anywhere">
+        </Step></Reveal>
+        <Reveal from="up" delay={1*120}><Step n="02" icon={Globe2} gradient="bg-gradient-to-br from-sky-400 to-cyan-500" title="Share it anywhere">
           Drop it into a video description, a forum post, a Telegram
           channel — wherever your audience already is.
-        </Step>
-        <Step n="03" icon={Wallet} gradient="bg-gradient-to-br from-pink-400 to-rose-500" title="Get paid per view">
+        </Step></Reveal>
+        <Reveal from="right" delay={2*120}><Step n="03" icon={Wallet} gradient="bg-gradient-to-br from-pink-400 to-rose-500" title="Get paid per view">
           Each visit is checked for bots and duplicates, then credited to
           your balance at your country's rate.
-        </Step>
+        </Step></Reveal>
       </div>
     </section>
   );
 }
 
-function FeatureCard({ icon: Icon, gradient, title, children }) {
+function FeatureCard({ i = 0, icon: Icon, gradient, title, children }) {
   const tint = tintOf(gradient);
   return (
+    <Reveal from={i % 2 ? 'right' : 'left'} delay={Math.floor(i / 2) * 100}>
     <div className="lift card-x feat-card" style={{ '--t': tint }}>
       <div className="flex-1 min-w-0">
         <span className="feat-tag">FEATURE</span>
@@ -514,6 +543,7 @@ function FeatureCard({ icon: Icon, gradient, title, children }) {
         <span className="feat-chip"><Icon size={16} strokeWidth={2.2} /></span>
       </div>
     </div>
+    </Reveal>
   );
 }
 
@@ -532,31 +562,31 @@ function Features() {
         </p>
       </div>
       <div className="grid sm:grid-cols-2 gap-5">
-        <FeatureCard icon={ShieldCheck} gradient="bg-gradient-to-br from-violet-400 to-purple-600" title="Fraud filtered before it's counted">
+        <FeatureCard i={0} icon={ShieldCheck} gradient="bg-gradient-to-br from-violet-400 to-purple-600" title="Fraud filtered before it's counted">
           Bots, VPNs, proxies, and datacenter traffic are screened out
           before a view reaches your earnings.
         </FeatureCard>
-        <FeatureCard icon={Wallet} gradient="bg-gradient-to-br from-pink-400 to-rose-500" title="Same-day payouts">
+        <FeatureCard i={1} icon={Wallet} gradient="bg-gradient-to-br from-pink-400 to-rose-500" title="Same-day payouts">
           Request a withdrawal and it's processed the same day, not held
           for a weekly cycle.
         </FeatureCard>
-        <FeatureCard icon={Users} gradient="bg-gradient-to-br from-sky-400 to-blue-500" title="10% for life, not 30 days">
+        <FeatureCard i={2} icon={Users} gradient="bg-gradient-to-br from-sky-400 to-blue-500" title="10% for life, not 30 days">
           Refer another publisher and earn a share of their earnings for as
           long as their account stays active.
         </FeatureCard>
-        <FeatureCard icon={Link2} gradient="bg-gradient-to-br from-indigo-400 to-indigo-600" title="Rates that hold">
+        <FeatureCard i={3} icon={Link2} gradient="bg-gradient-to-br from-indigo-400 to-indigo-600" title="Rates that hold">
           CPM is resolved per country and cached, not renegotiated against
           you once your traffic ramps up.
         </FeatureCard>
-        <FeatureCard icon={TrendingUp} gradient="bg-gradient-to-br from-emerald-400 to-teal-600" title="Highest CPM rates">
+        <FeatureCard i={4} icon={TrendingUp} gradient="bg-gradient-to-br from-emerald-400 to-teal-600" title="Highest CPM rates">
           Maximize your traffic earnings with rates that only move up as
           our advertiser demand grows.
         </FeatureCard>
-        <FeatureCard icon={LayoutDashboard} gradient="bg-gradient-to-br from-amber-400 to-orange-500" title="Advanced dashboard">
+        <FeatureCard i={5} icon={LayoutDashboard} gradient="bg-gradient-to-br from-amber-400 to-orange-500" title="Advanced dashboard">
           Real-time charts, per-link breakdowns, and country-level
           insights — all the control you need in one place.
         </FeatureCard>
-        <FeatureCard icon={Headset} gradient="bg-gradient-to-br from-cyan-400 to-sky-600" title="24/7 customer support">
+        <FeatureCard i={6} icon={Headset} gradient="bg-gradient-to-br from-cyan-400 to-sky-600" title="24/7 customer support">
           Get a real answer any time of day — our support team is always
           on, no matter your timezone.
         </FeatureCard>
@@ -586,7 +616,7 @@ function RateRow({ country, cpm, flag }) {
 function Rates() {
   return (
     <section id="rates" className="px-6 sm:px-10 max-w-5xl mx-auto py-10 grid lg:grid-cols-2 gap-10 items-start">
-      <div>
+      <Reveal from="left">
         <span className="inline-flex glass rounded-full px-3 py-1 text-[11px] font-body font-semibold tracking-wider uppercase text-indigo-600 mb-3">CPM rates</span>
         <h2 className="font-display font-extrabold text-3xl sm:text-4xl leading-tight text-[var(--ink)] mb-3">Priced by where your viewer is.</h2>
         <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed max-w-sm">
@@ -594,8 +624,8 @@ function Rates() {
           dashboard shows the live rate for every country sending you
           traffic.
         </p>
-      </div>
-      <div>
+      </Reveal>
+      <Reveal from="right">
         <div className="card-x px-6 pt-5 pb-2">
           <div className="flex items-start justify-between pb-4 border-b border-black/5">
             <div>
@@ -611,7 +641,7 @@ function Rates() {
           <RateRow country="Brazil" cpm={1.6} flag="🇧🇷" />
           <RateRow country="Global average" cpm={2.9} flag="🌍" />
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
@@ -745,9 +775,11 @@ function Payouts() {
   }, [n]);
   return (
     <section id="payouts" className="px-6 sm:px-10 max-w-5xl mx-auto py-10 relative">
-      <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">Five ways to get paid, worldwide.</h2>
-      <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">Pick the one that suits where you live and withdraw to it.</p>
-      <div className="pay-panel">
+      <Reveal from="left">
+        <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">Five ways to get paid, worldwide.</h2>
+        <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">Pick the one that suits where you live and withdraw to it.</p>
+      </Reveal>
+      <Reveal from="right"><div className="pay-panel">
         <div className="pay-rings" aria-hidden="true" />
         <div className="pay-tiles" aria-hidden="true"><span /><span /><span /></div>
         <div className="pay-stage">
@@ -776,7 +808,7 @@ function Payouts() {
         <div className="pay-dots" aria-hidden="true">
           {PAYOUT_METHODS.map((m, idx) => <span key={m.name} className={idx === i ? 'on' : ''} />)}
         </div>
-      </div>
+      </div></Reveal>
     </section>
   );
 }
@@ -792,7 +824,7 @@ const GAME_CHANGER_POINTS = [
 function WhyChooseUs() {
   return (
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10 relative">
-      <div className="suggest-card">
+      <Reveal from="left"><div className="suggest-card">
         <div className="suggest-head">
           <h2 className="font-display font-bold text-[1.35rem] sm:text-2xl leading-tight text-[var(--ink)] flex items-center gap-2">
             <Sparkles size={18} strokeWidth={2} className="shrink-0" /> Bexalink is a game-changer.
@@ -814,7 +846,7 @@ function WhyChooseUs() {
           <span className="suggest-ico suggest-ico-lg"><ArrowUp size={18} className="rotate-45" /></span>
           <span className="font-body text-xs text-[var(--ink-faint)]">start earning…</span>
         </a>
-      </div>
+      </div></Reveal>
     </section>
   );
 }
@@ -882,17 +914,18 @@ function Footer() {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen relative isolate">
+    <div className="min-h-screen relative isolate overflow-x-clip">
+      <ScrollProgress />
       <Nav />
       <Hero />
-      <Reveal><StatsSection /></Reveal>
-      <Reveal><HowItWorks /></Reveal>
-      <Reveal><Features /></Reveal>
-      <Reveal><Rates /></Reveal>
-      <Reveal><Testimonial /></Reveal>
-      <Reveal><WhyChooseUs /></Reveal>
-      <Reveal><Payouts /></Reveal>
-      <Reveal><ClosingCTA /></Reveal>
+      <Reveal from="fade"><StatsSection /></Reveal>
+      <Reveal from="fade"><HowItWorks /></Reveal>
+      <Reveal from="fade"><Features /></Reveal>
+      <Reveal from="fade"><Rates /></Reveal>
+      <Reveal from="fade"><Testimonial /></Reveal>
+      <Reveal from="fade"><WhyChooseUs /></Reveal>
+      <Reveal from="fade"><Payouts /></Reveal>
+      <Reveal from="scale"><ClosingCTA /></Reveal>
       <Footer />
     </div>
   );
