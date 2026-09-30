@@ -166,8 +166,25 @@ router.get('/payouts', requireAuth, async (req, res) => {
 });
 
 router.post('/payouts', requireAuth, async (req, res) => {
-  const { amount, method, account, network } = req.body || {};
+  let { amount, method, account, network } = req.body || {};
+  const { paymentMethodId } = req.body || {};
   const userId = req.user.id;
+
+  // Paying out to an account saved under Payment accounts: the details are
+  // read from the database (the browser only ever sees a masked copy).
+  let savedMethodId = null;
+  if (paymentMethodId) {
+    const saved = await db.query(
+      `SELECT id, method, details FROM payment_methods
+       WHERE id = $1 AND user_id = $2 AND archived_at IS NULL`,
+      [paymentMethodId, userId]
+    ).catch(() => ({ rows: [] }));
+    if (!saved.rows[0]) return res.status(404).json({ error: 'That payment account no longer exists.' });
+    savedMethodId = saved.rows[0].id;
+    method = METHOD_FROM_DB[saved.rows[0].method] || saved.rows[0].method;
+    account = saved.rows[0].details?.account;
+    network = saved.rows[0].details?.network;
+  }
 
   const amountCents = Math.round(Number(amount) * 100);
   if (!Number.isFinite(amountCents) || amountCents <= 0) {
@@ -193,12 +210,16 @@ router.post('/payouts', requireAuth, async (req, res) => {
     const details = { account: String(account).trim(), ...(network ? { network } : {}) };
     const detailsJson = JSON.stringify(details);
 
-    // Reuse an existing identical payment method for this user, else create one.
-    const existing = await db.query(
-      `SELECT id FROM payment_methods WHERE user_id = $1 AND method = $2 AND details = $3::jsonb LIMIT 1`,
-      [userId, dbMethod, detailsJson]
-    );
-    let paymentMethodId = existing.rows[0]?.id;
+    // Saved account -> use it as is. Otherwise reuse an identical payment
+    // method for this user, else create one.
+    let paymentMethodId = savedMethodId;
+    if (!paymentMethodId) {
+      const existing = await db.query(
+        `SELECT id FROM payment_methods WHERE user_id = $1 AND method = $2 AND details = $3::jsonb LIMIT 1`,
+        [userId, dbMethod, detailsJson]
+      );
+      paymentMethodId = existing.rows[0]?.id;
+    }
     if (!paymentMethodId) {
       const inserted = await db.query(
         `INSERT INTO payment_methods (user_id, method, details) VALUES ($1, $2, $3::jsonb) RETURNING id`,
