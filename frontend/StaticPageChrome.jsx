@@ -10,9 +10,12 @@ export function StaticHeader() {
     <header className="sticky top-0 z-30 glass-strong">
       <div className="flex items-center justify-between gap-4 px-6 sm:px-10 py-4 max-w-3xl mx-auto">
         <BrandLogo href="/" />
-        <a href="/" className="text-sm font-body font-medium text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors">
-          Back to home
-        </a>
+        <nav className="flex items-center gap-4 text-sm font-body font-medium text-[var(--ink-soft)]">
+          <a href="/about" className="hidden sm:block hover:text-[var(--ink)] transition-colors">About</a>
+          <a href="/contact" className="hidden sm:block hover:text-[var(--ink)] transition-colors">Contact</a>
+          <a href="/" className="hover:text-[var(--ink)] transition-colors">Home</a>
+          <a href="/signup" className="btn btn-glass font-body px-4 py-2 rounded-full text-[13px]">Get started</a>
+        </nav>
       </div>
     </header>
   );
