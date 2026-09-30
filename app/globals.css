@@ -362,3 +362,8 @@ section[id] { scroll-margin-top: 1rem; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .float-chip { animation: none; }
 }
+
+/* ── Card hover lift (landing + static pages) ── */
+.lift { transition: transform .25s ease, box-shadow .25s ease; }
+@media (hover: hover) { .lift:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -16px rgba(29,27,46,.22); } }
+@media (prefers-reduced-motion: reduce) { .lift { transition: none; } .lift:hover { transform: none; } }
