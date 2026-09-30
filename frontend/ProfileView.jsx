@@ -144,7 +144,7 @@ export default function ProfileView({ profileQ, summary, summaryLoading, toast, 
             <Field label="Display name"><input value={form.displayName} onChange={set('displayName')} placeholder="Shown in your dashboard" maxLength={120} className={INPUT} /></Field>
             <Field label="Phone"><input value={form.phone} onChange={set('phone')} type="tel" inputMode="tel" autoComplete="tel" placeholder="+91 98765 43210" maxLength={24} className={INPUT} /></Field>
             <Field label="Email" className="sm:col-span-2">
-              <input value={user?.email || ''} readOnly aria-readonly="true" className={`${INPUT} opacity-70 cursor-not-allowed`} />
+              <input value={user?.email || ''} readOnly aria-readonly="true" className={`${INPUT} bg-slate-100 text-[var(--ink-soft)] cursor-not-allowed`} />
             </Field>
           </div>
         </div>
