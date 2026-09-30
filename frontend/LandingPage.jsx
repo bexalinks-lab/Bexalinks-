@@ -6,7 +6,7 @@
 // gradient icon badges with a glossy highlight for a 3D-widget feel, and a
 // bold rounded display face instead of the earlier ledger/serif treatment.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight, Globe2, Landmark, Link2, Menu, ShieldCheck, Wallet, Users, Copy, X,
   TrendingUp, LayoutDashboard, Headset, CheckCircle2,
@@ -321,40 +321,92 @@ function HeroIllustration() {
   );
 }
 
-function Hero() {
-  return (
-    <section className="relative px-6 sm:px-10 max-w-5xl mx-auto pt-10 pb-10">
-      <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
-        <div className="relative">
-          <h1 className="font-display font-extrabold text-[2.6rem] sm:text-5xl leading-[1.08] text-[var(--ink)] mb-6">
-            Every link you share can pay you back.
-          </h1>
-          <p className="font-subheading text-[var(--ink-soft)] text-base sm:text-lg mb-8 max-w-md leading-relaxed">
-            Bexalink shortens your links and credits your balance per
-            verified view — real visitors only, checked the way ad networks
-            check them, with payouts you can request the same day.
-          </p>
-          <img
-            src="/hero-tech-illustration.png"
-            alt=""
-            aria-hidden="true"
-            className="w-full max-w-md h-auto mb-8"
-          />
-          <HeroShortenBar />
-          <p className="text-xs font-body text-[var(--ink-faint)] mt-4">No card required. First payout available at $5.</p>
-        </div>
+// Fades + slides a section up the first time it scrolls into view.
+function Reveal({ children, className = '' }) {
+  const ref = useRef(null);
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !('IntersectionObserver' in window)) { setOn(true); return; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); io.disconnect(); } }, { threshold: 0.1 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return <div ref={ref} className={`reveal ${on ? 'reveal-in' : ''} ${className}`}>{children}</div>;
+}
 
-        <div>
-          <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">Numbers that do the talking.</h2>
-          <p className="font-body text-[var(--ink-soft)] mb-6 max-w-md">What you actually earn — no hidden fine print.</p>
-          <div className="grid grid-cols-2 gap-4">
-            <WidgetStat label="Avg. CPM" value="$4.80" sublabel="Tier-1 traffic" gradient="bg-indigo-500" />
-            <WidgetStat label="Payout time" value="24/7" sublabel="Requests processed daily" gradient="bg-pink-500" />
-            <WidgetStat label="Referral share" value="10%" sublabel="For life" gradient="bg-sky-400" />
-            <WidgetStat label="Payout methods" value="5" sublabel="Payment modes to choose" gradient="bg-violet-500" />
+const MOCK_LINKS = [
+  { code: 'bexa.link/summer', views: '12,480', earned: '$58.20' },
+  { code: 'bexa.link/pdf-guide', views: '8,912', earned: '$41.05' },
+  { code: 'bexa.link/tg-drop', views: '5,307', earned: '$24.60' },
+];
+
+// Product mockup of the real dashboard — pure CSS/SVG, no image files.
+function DashboardMockup() {
+  return (
+    <div className="relative max-w-xl mx-auto">
+      <div className="absolute -inset-6 -z-10 rounded-[56px] bg-gradient-to-br from-indigo-300/40 via-sky-200/30 to-pink-200/40 blur-3xl" />
+      <div className="glass-strong p-3 sm:p-4" style={{ borderRadius: 36 }}>
+        <div className="bg-white rounded-[26px] p-4 sm:p-6 text-left shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className={`w-7 h-7 rounded-lg ${BRAND_GRADIENT}`} />
+              <span className="font-display font-bold text-sm text-[var(--ink)]">Dashboard</span>
+            </div>
+            <span className="text-[11px] font-body px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 font-medium">Live</span>
           </div>
+          <p className="text-xs font-body text-[var(--ink-faint)]">Available balance</p>
+          <div className="flex items-end gap-2 mb-2">
+            <p className="font-display font-extrabold text-3xl sm:text-4xl text-[var(--ink)]">$1,284.60</p>
+            <span className="mb-1 text-xs font-body font-semibold text-emerald-600">+12.4%</span>
+          </div>
+          <svg viewBox="0 0 300 90" className="w-full h-auto mb-4" role="img" aria-label="Earnings trend">
+            <defs>
+              <linearGradient id="mk-fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#8B5CF6" stopOpacity="0.35" /><stop offset="1" stopColor="#8B5CF6" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="mk-line" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stopColor="#6366F1" /><stop offset="1" stopColor="#EC4899" />
+              </linearGradient>
+            </defs>
+            <path d="M0 70 C30 62 45 72 75 55 S120 40 150 46 S200 22 230 28 S275 10 300 8 V90 H0Z" fill="url(#mk-fill)" />
+            <path d="M0 70 C30 62 45 72 75 55 S120 40 150 46 S200 22 230 28 S275 10 300 8" fill="none" stroke="url(#mk-line)" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+          <ul className="flex flex-col gap-2">
+            {MOCK_LINKS.map((l) => (
+              <li key={l.code} className="flex items-center justify-between rounded-2xl bg-slate-50 px-3.5 py-2.5">
+                <span className="text-xs sm:text-sm font-body font-medium text-[var(--ink)] truncate">{l.code}</span>
+                <span className="text-xs font-body text-[var(--ink-faint)] mx-3 hidden sm:block">{l.views} views</span>
+                <span className="text-xs sm:text-sm font-body font-semibold text-[var(--ink)]">{l.earned}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
+      <div className="float-chip glass-strong absolute -top-4 -right-1 sm:-right-6 px-3.5 py-2.5 flex items-center gap-2" style={{ borderRadius: 20 }}>
+        <span className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center"><CheckCircle2 size={15} className="text-white" /></span>
+        <span className="text-xs font-body leading-tight"><b className="text-[var(--ink)]">Payout sent</b><br /><span className="text-[var(--ink-faint)]">$50.00 · UPI</span></span>
+      </div>
+    </div>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="relative px-6 sm:px-10 max-w-5xl mx-auto pt-12 sm:pt-20 pb-10 text-center">
+      <span className="inline-flex items-center gap-2 glass rounded-full px-3.5 py-1.5 text-xs font-body font-medium text-[var(--ink-soft)] mb-6">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Payouts from just $5
+      </span>
+      <h1 className="font-display font-extrabold text-[2.5rem] sm:text-6xl leading-[1.05] text-[var(--ink)] mb-5 max-w-2xl mx-auto">
+        Every link you share can pay you back.
+      </h1>
+      <p className="font-subheading text-[var(--ink-soft)] text-base sm:text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+        Shorten links, track every verified view and get paid — with
+        payouts you can request any day.
+      </p>
+      <div className="flex justify-center mb-3"><HeroShortenBar /></div>
+      <p className="text-xs font-body text-[var(--ink-faint)] mb-12">No card required. First payout available at $5.</p>
+      <DashboardMockup />
     </section>
   );
 }
@@ -669,56 +721,30 @@ function WhyChooseUs() {
 
 function ClosingCTA() {
   return (
-    <section className="px-6 sm:px-10 max-w-5xl mx-auto py-16 flex justify-center">
-      <div className="relative w-full max-w-sm p-7 overflow-hidden glass-strong" style={{ borderRadius: 40 }}>
-        {/* soft interior gradient wash, like the reference profile card */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-200/70 via-sky-100/50 to-pink-100/60" />
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br from-violet-400 to-pink-400 opacity-30 blur-2xl -z-10" />
-
-        <div className="flex items-start justify-between mb-5">
-          <div className={`w-14 h-14 rounded-2xl ${BRAND_GRADIENT} flex items-center justify-center shadow-lg relative overflow-hidden`}>
-            <div className="glass-shine" />
-            <Wallet size={26} className="text-white relative z-10" />
+    <section className="px-4 sm:px-10 max-w-5xl mx-auto py-16">
+      <div className="relative overflow-hidden bg-[#0B0B12] text-center px-6 sm:px-12 py-14 sm:py-20" style={{ borderRadius: 40 }}>
+        <div className="absolute -top-24 -left-16 w-72 h-72 rounded-full bg-indigo-500 opacity-30 blur-3xl" />
+        <div className="absolute -bottom-28 -right-10 w-80 h-80 rounded-full bg-pink-500 opacity-25 blur-3xl" />
+        <div className="relative">
+          <h2 className="font-display font-extrabold text-3xl sm:text-5xl text-white leading-tight mb-4 max-w-xl mx-auto">
+            Start earning from your links today.
+          </h2>
+          <p className="font-body text-white/60 text-sm sm:text-base mb-8 max-w-md mx-auto">
+            Free to join. No minimum traffic. Withdraw from $5 to UPI, PayPal, Payoneer, bank or USDT.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="/signup" className="btn w-full sm:w-auto px-7 py-3 rounded-full bg-white text-[#0B0B12] font-body font-semibold text-sm hover:bg-white/90 transition-colors">
+              Create free account <ArrowRight size={15} />
+            </a>
+            <a href="/login" className="btn w-full sm:w-auto px-7 py-3 rounded-full border border-white/25 text-white font-body font-medium text-sm hover:bg-white/10 transition-colors">
+              Log in
+            </a>
           </div>
-          <a
-            href="/signup"
-            aria-label="Create your account"
-            className="w-9 h-9 rounded-full bg-white border border-black/10 flex items-center justify-center transition-transform duration-150 hover:scale-105 active:scale-95"
-          >
-            <ArrowRight size={15} className="text-black" />
-          </a>
-        </div>
-
-        <h2 className="font-display font-bold text-2xl text-[var(--ink)] mb-1">Create your account</h2>
-        <p className="font-body text-sm text-[var(--ink-soft)] mb-5">Free to join. No minimum traffic required.</p>
-
-        <div className="flex gap-2 mb-6">
-          <span className="glass rounded-full px-3 py-1 text-xs font-body text-[var(--ink-soft)]">Instant payouts</span>
-          <span className="glass rounded-full px-3 py-1 text-xs font-body text-[var(--ink-soft)]">15+ countries</span>
-        </div>
-
-        <div className="flex items-center justify-between mb-6 text-center">
-          <div>
-            <p className="font-display font-bold text-lg text-[var(--ink)]">$4.80</p>
-            <p className="text-xs font-body text-[var(--ink-faint)]">Avg. CPM</p>
+          <div className="flex items-center justify-center gap-8 mt-10 text-center">
+            {[['$4.80', 'Avg. CPM'], ['10%', 'Referral'], ['<24h', 'Payout']].map(([v, l]) => (
+              <div key={l}><p className="font-display font-bold text-lg text-white">{v}</p><p className="text-xs font-body text-white/45">{l}</p></div>
+            ))}
           </div>
-          <div>
-            <p className="font-display font-bold text-lg text-[var(--ink)]">10%</p>
-            <p className="text-xs font-body text-[var(--ink-faint)]">Referral</p>
-          </div>
-          <div>
-            <p className="font-display font-bold text-lg text-[var(--ink)]">&lt;24h</p>
-            <p className="text-xs font-body text-[var(--ink-faint)]">Payout</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <CtaButton href="/signup" className="flex-1 px-5 py-2.5 rounded-full text-[13px]">
-            Get started
-          </CtaButton>
-          <a href="/login" aria-label="Log in" className="btn btn-secondary w-11 h-11 shrink-0 rounded-full">
-            <ArrowRight size={16} />
-          </a>
         </div>
       </div>
     </section>
@@ -759,14 +785,14 @@ export default function LandingPage() {
     <div className="min-h-screen relative isolate">
       <Nav />
       <Hero />
-      <StatsSection />
-      <HowItWorks />
-      <Features />
-      <Rates />
-      <Testimonial />
-      <WhyChooseUs />
-      <Payouts />
-      <ClosingCTA />
+      <Reveal><StatsSection /></Reveal>
+      <Reveal><HowItWorks /></Reveal>
+      <Reveal><Features /></Reveal>
+      <Reveal><Rates /></Reveal>
+      <Reveal><Testimonial /></Reveal>
+      <Reveal><WhyChooseUs /></Reveal>
+      <Reveal><Payouts /></Reveal>
+      <Reveal><ClosingCTA /></Reveal>
       <Footer />
     </div>
   );
