@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight, Globe2, Landmark, Link2, Menu, ShieldCheck, Wallet, Users, Copy, X,
-  TrendingUp, LayoutDashboard, Headset, CheckCircle2, Star,
+  TrendingUp, LayoutDashboard, Headset, CheckCircle2, Star, ArrowUp, Share2,
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
@@ -197,6 +197,11 @@ function HeroShortenBar() {
   );
 }
 
+function Money({ v }) {
+  const [int, dec] = v.split('.');
+  return <>{int}{dec && <span className="opacity-30">.{dec}</span>}</>;
+}
+
 function SectionHead({ eyebrow, title, sub, className = '' }) {
   return (
     <div className={`mb-8 max-w-lg ${className}`}>
@@ -210,15 +215,14 @@ function SectionHead({ eyebrow, title, sub, className = '' }) {
 // Dashboard-style stat tile: icon badge, big value, soft colour wash.
 function WidgetStat({ label, value, sublabel, gradient, icon: Icon }) {
   return (
-    <div className="lift glass-strong rounded-3xl p-5 relative overflow-hidden">
-      <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full ${gradient} opacity-25 blur-2xl`} />
+    <div className="lift card-x p-5">
       {Icon && (
         <span className={`relative z-10 mb-4 w-10 h-10 rounded-2xl ${gradient} flex items-center justify-center shadow-md`}>
           <Icon size={18} className="text-white" />
         </span>
       )}
-      <p className="text-xs font-body font-medium text-[var(--ink-faint)] mb-1 relative z-10">{label}</p>
-      <p className="font-display font-extrabold text-3xl text-[var(--ink)] relative z-10">{value}</p>
+      <p className="text-[11px] font-body font-semibold uppercase tracking-wider text-[var(--ink-faint)] mb-1.5 relative z-10 flex items-center gap-2"><span className={`w-1 h-3.5 rounded-full ${gradient}`} />{label}</p>
+      <p className="font-display font-extrabold text-[2rem] leading-none text-[var(--ink)] relative z-10">{value}</p>
       {sublabel && <p className="text-xs font-body text-[var(--ink-faint)] mt-1 relative z-10">{sublabel}</p>}
     </div>
   );
@@ -361,41 +365,39 @@ function DashboardMockup() {
   return (
     <div className="relative max-w-xl mx-auto">
       <div className="absolute -inset-6 -z-10 rounded-[56px] bg-gradient-to-br from-indigo-300/40 via-sky-200/30 to-pink-200/40 blur-3xl" />
-      <div className="glass-strong p-3 sm:p-4" style={{ borderRadius: 36 }}>
-        <div className="bg-white rounded-[26px] p-4 sm:p-6 text-left shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <span className={`w-7 h-7 rounded-lg ${BRAND_GRADIENT}`} />
-              <span className="font-display font-bold text-sm text-[var(--ink)]">Dashboard</span>
-            </div>
-            <span className="text-[11px] font-body px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 font-medium">Live</span>
+      <div className="absolute inset-x-8 -top-3 h-8 rounded-t-[32px] bg-indigo-300/60" />
+      <div className="absolute inset-x-4 -top-1.5 h-8 rounded-t-[34px] bg-sky-200/80" />
+      <div className="relative overflow-hidden bg-[#0d1020] p-3 sm:p-4 pt-14 grid-bg" style={{ borderRadius: 40, boxShadow: '0 30px 60px -24px rgba(30,30,80,.55)' }}>
+        <div className="absolute -top-16 -right-10 w-56 h-56 rounded-full bg-sky-500 opacity-40 blur-3xl" />
+        <span className="absolute top-5 left-6 font-display font-semibold text-white text-base">Earnings</span>
+        <span className={`absolute top-4 right-5 w-9 h-9 rounded-full ${BRAND_GRADIENT} border-2 border-white/80`} />
+        <div className="relative bg-white rounded-[28px] p-4 sm:p-6 text-left">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-body font-semibold uppercase tracking-wider text-[var(--ink-faint)] bg-slate-100 rounded-full px-3 py-1">Your balance</span>
+            <span className="text-[11px] font-body px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 font-semibold">+12.4%</span>
           </div>
-          <p className="text-xs font-body text-[var(--ink-faint)]">Available balance</p>
-          <div className="flex items-end gap-2 mb-2">
-            <p className="font-display font-extrabold text-3xl sm:text-4xl text-[var(--ink)]">$1,284.60</p>
-            <span className="mb-1 text-xs font-body font-semibold text-emerald-600">+12.4%</span>
-          </div>
+          <p className="font-display font-extrabold text-4xl text-[var(--ink)] mb-2">$<Money v="1,284.60" /></p>
           <svg viewBox="0 0 300 90" className="w-full h-auto mb-4" role="img" aria-label="Earnings trend">
             <defs>
-              <linearGradient id="mk-fill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#8B5CF6" stopOpacity="0.35" /><stop offset="1" stopColor="#8B5CF6" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient id="mk-line" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0" stopColor="#6366F1" /><stop offset="1" stopColor="#EC4899" />
-              </linearGradient>
+              <linearGradient id="mk-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8B5CF6" stopOpacity="0.35" /><stop offset="1" stopColor="#8B5CF6" stopOpacity="0" /></linearGradient>
+              <linearGradient id="mk-line" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#38BDF8" /><stop offset="1" stopColor="#EC4899" /></linearGradient>
             </defs>
             <path d="M0 70 C30 62 45 72 75 55 S120 40 150 46 S200 22 230 28 S275 10 300 8 V90 H0Z" fill="url(#mk-fill)" />
             <path d="M0 70 C30 62 45 72 75 55 S120 40 150 46 S200 22 230 28 S275 10 300 8" fill="none" stroke="url(#mk-line)" strokeWidth="3" strokeLinecap="round" />
           </svg>
-          <ul className="flex flex-col gap-2">
-            {MOCK_LINKS.map((l) => (
-              <li key={l.code} className="flex items-center justify-between rounded-2xl bg-slate-50 px-3.5 py-2.5">
-                <span className="text-xs sm:text-sm font-body font-medium text-[var(--ink)] truncate">{l.code}</span>
-                <span className="text-xs font-body text-[var(--ink-faint)] mx-3 hidden sm:block">{l.views} views</span>
+          <ul className="flex flex-col gap-2 mb-4">
+            {MOCK_LINKS.map((l, i) => (
+              <li key={l.code} className="flex items-center gap-2.5 rounded-2xl bg-slate-50 px-3.5 py-2.5">
+                <span className={`w-1 h-4 rounded-full ${['bg-sky-400', 'bg-pink-400', 'bg-amber-400'][i]}`} />
+                <span className="flex-1 text-xs sm:text-sm font-body font-medium text-[var(--ink)] truncate">{l.code}</span>
                 <span className="text-xs sm:text-sm font-body font-semibold text-[var(--ink)]">{l.earned}</span>
               </li>
             ))}
           </ul>
+          <div className="flex gap-2">
+            <span className="flex-1 flex items-center justify-center gap-2 rounded-full bg-slate-100 py-3 text-sm font-body font-medium text-[var(--ink)]"><Share2 size={15} /> Share</span>
+            <span className="flex-1 flex items-center justify-center gap-2 rounded-full bg-black py-3 text-sm font-body font-medium text-white">Withdraw <ArrowUp size={15} /></span>
+          </div>
         </div>
       </div>
       <div className="float-chip glass-strong absolute -top-4 -right-1 sm:-right-6 px-3.5 py-2.5 flex items-center gap-2" style={{ borderRadius: 20 }}>
@@ -409,9 +411,13 @@ function DashboardMockup() {
 function Hero() {
   return (
     <section className="relative px-6 sm:px-10 max-w-5xl mx-auto pt-12 sm:pt-20 pb-10 text-center">
-      <span className="inline-flex items-center gap-2 glass rounded-full px-3.5 py-1.5 text-xs font-body font-medium text-[var(--ink-soft)] mb-6">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Payouts from just $5
-      </span>
+      <div className="relative inline-block mt-16 mb-7">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/axolotl.png" alt="" width={150} height={103} className="ax-bob absolute left-1/2 -translate-x-1/2 bottom-[calc(100%-16px)] w-[150px] h-auto select-none pointer-events-none" />
+        <span className="relative z-10 inline-flex items-center gap-2 bg-white border border-black/10 shadow-[0_8px_20px_-10px_rgba(29,27,46,.35)] rounded-full px-5 py-2.5 text-sm font-body font-semibold text-[var(--ink)]">
+          <span className="w-2 h-2 rounded-full bg-emerald-500" /> Payouts from just $5
+        </span>
+      </div>
       <h1 className="font-display font-extrabold text-[2.5rem] sm:text-6xl leading-[1.05] text-[var(--ink)] mb-5 max-w-2xl mx-auto">
         Every link you share can pay you back.
       </h1>
@@ -428,14 +434,14 @@ function Hero() {
 
 function Step({ n, icon: Icon, gradient, title, children }) {
   return (
-    <div className="lift glass-strong rounded-3xl p-6 flex flex-col gap-5 relative overflow-hidden">
+    <div className="lift card-x card-rim p-6 flex flex-col gap-5">
       <span className="absolute -top-3 right-4 font-display font-extrabold text-7xl text-black/[0.05] select-none">{n}</span>
       <IconBadge icon={Icon} gradient={gradient} size={52} />
       <div>
         <h3 className="font-display text-[var(--ink)] text-lg font-bold mb-1.5">{title}</h3>
         <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed">{children}</p>
       </div>
-      <span className="text-[11px] font-body font-semibold text-indigo-600 bg-indigo-500/10 rounded-full px-3 py-1 self-start">Step {n}</span>
+      <span className="text-[11px] font-mono font-semibold tracking-wide text-[var(--ink-soft)] bg-white border border-black/10 shadow-sm rounded-full pl-2.5 pr-3 py-1 self-start flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500" />STEP {n}</span>
     </div>
   );
 }
@@ -464,11 +470,10 @@ function HowItWorks() {
 
 function FeatureCard({ icon: Icon, gradient, title, children }) {
   return (
-    <div className="lift glass-strong rounded-3xl p-6 flex gap-4 relative overflow-hidden">
-      <div className={`absolute -bottom-14 -right-14 w-36 h-36 rounded-full ${gradient} opacity-15 blur-2xl`} />
+    <div className="lift card-x p-6 flex gap-4">
       <IconBadge icon={Icon} gradient={gradient} />
-      <div>
-        <h3 className="font-body text-[var(--ink)] text-sm font-bold mb-1.5">{title}</h3>
+      <div className="flex-1">
+        <h3 className="font-display text-[var(--ink)] text-base font-bold mb-1.5">{title}</h3>
         <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed">{children}</p>
       </div>
     </div>
@@ -533,8 +538,9 @@ function RateRow({ country, cpm, flag }) {
         </span>
         <span className="font-display font-bold text-base text-[var(--ink)]">${cpm.toFixed(2)}</span>
       </div>
-      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-        <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-pink-500" style={{ width: `${Math.min(100, (cpm / 6.2) * 100)}%` }} />
+      <div className="relative h-1.5 rounded-full bg-slate-200/70 mr-2">
+        <div className="h-full rounded-full bg-gradient-to-r from-sky-400 via-violet-500 to-pink-500" style={{ width: `${Math.min(100, (cpm / 6.2) * 100)}%` }} />
+        <span className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white border-[3px] border-pink-500 shadow" style={{ left: `${Math.min(100, (cpm / 6.2) * 100)}%` }} />
       </div>
     </div>
   );
@@ -553,10 +559,13 @@ function Rates() {
         </p>
       </div>
       <div>
-        <div className="glass-strong rounded-3xl px-6 pt-5 pb-2">
-          <div className="flex items-center justify-between pb-2 border-b border-black/5">
-            <span className="font-display font-bold text-sm text-[var(--ink)]">CPM per 1,000 views</span>
-            <span className="text-[11px] font-body px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 font-medium">Live</span>
+        <div className="card-x px-6 pt-5 pb-2">
+          <div className="flex items-start justify-between pb-4 border-b border-black/5">
+            <div>
+              <p className="text-[11px] font-body font-semibold uppercase tracking-wider text-[var(--ink-faint)] mb-1">Global average · per 1,000 views</p>
+              <p className="font-display font-extrabold text-4xl text-[var(--ink)]">$<Money v="2.90" /></p>
+            </div>
+            <span className="text-[11px] font-body px-3 py-1.5 rounded-full bg-black text-white font-medium flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />Live</span>
           </div>
           <RateRow country="United States" cpm={6.2} flag="🇺🇸" />
           <RateRow country="United Kingdom" cpm={5.4} flag="🇬🇧" />
@@ -601,10 +610,10 @@ function Testimonial() {
         {TESTIMONIALS.map((t) => {
           const [person, role] = t.name.split(' — ');
           return (
-            <div key={t.name} className="lift glass-strong rounded-3xl p-6 shrink-0 snap-center w-[85%] sm:w-[380px] flex flex-col">
-              <div className="flex gap-0.5 mb-4">
-                {[0, 1, 2, 3, 4].map((i) => <Star key={i} size={15} className="text-amber-400 fill-amber-400" />)}
-              </div>
+            <div key={t.name} className="lift card-x p-6 shrink-0 snap-center w-[85%] sm:w-[380px] flex flex-col">
+              <div className="flex items-center justify-between mb-4"><span className="text-[11px] font-body font-semibold uppercase tracking-wider text-[var(--ink-faint)] bg-slate-100 rounded-full px-3 py-1">Verified</span><div className="flex gap-0.5">
+                {[0, 1, 2, 3, 4].map((i) => <Star key={i} size={14} className="text-amber-400 fill-amber-400" />)}
+              </div></div>
               <p className="font-body text-base text-[var(--ink)] leading-relaxed mb-6 flex-1">&ldquo;{t.quote}&rdquo;</p>
               <div className="flex items-center gap-3">
                 <span className={`w-10 h-10 rounded-full ${BRAND_GRADIENT} flex items-center justify-center text-white font-display font-bold text-sm`}>{person[0]}</span>
@@ -726,7 +735,7 @@ function WhyChooseUs() {
   return (
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10 relative">
       <div className="absolute top-10 right-1/4 w-64 h-64 rounded-full bg-gradient-to-br from-violet-300 to-pink-300 opacity-20 blur-3xl -z-10" />
-      <div className="glass-strong rounded-[40px] p-8 sm:p-12 grid sm:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
+      <div className="card-x p-8 sm:p-12 grid sm:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
         <div>
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-[var(--ink)] mb-4 leading-tight">
             Bexalink is a game-changer.
@@ -739,7 +748,7 @@ function WhyChooseUs() {
         </div>
         <ul className="flex flex-col gap-3">
           {GAME_CHANGER_POINTS.map((point) => (
-            <li key={point} className="glass rounded-2xl px-4 py-3 flex items-center gap-3">
+            <li key={point} className="bg-white/90 border border-white rounded-full px-4 py-3 flex items-center gap-3 shadow-[0_6px_14px_-8px_rgba(29,27,46,.25)]">
               <CheckCircle2 size={20} className="text-emerald-500 shrink-0" strokeWidth={2.2} />
               <span className="font-body text-sm font-medium text-[var(--ink)]">{point}</span>
             </li>
@@ -753,7 +762,7 @@ function WhyChooseUs() {
 function ClosingCTA() {
   return (
     <section className="px-4 sm:px-10 max-w-5xl mx-auto py-16">
-      <div className="relative overflow-hidden bg-[#0B0B12] text-center px-6 sm:px-12 py-14 sm:py-20" style={{ borderRadius: 40 }}>
+      <div className="relative overflow-hidden grid-bg bg-[#0B0B12] text-center px-6 sm:px-12 py-14 sm:py-20" style={{ borderRadius: 40 }}>
         <div className="absolute -top-24 -left-16 w-72 h-72 rounded-full bg-indigo-500 opacity-30 blur-3xl" />
         <div className="absolute -bottom-28 -right-10 w-80 h-80 rounded-full bg-pink-500 opacity-25 blur-3xl" />
         <div className="relative">
