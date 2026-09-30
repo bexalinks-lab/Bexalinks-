@@ -370,7 +370,7 @@ section[id] { scroll-margin-top: 1rem; }
 
 /* ── Squircle cards: stacked layers, bottom glow, gradient rim (from the UI references) ── */
 .card-x { position: relative; isolation: isolate; overflow: hidden; border-radius: 34px;
-  border: 1px solid rgba(255,255,255,.95); background: linear-gradient(180deg,#fff,#f5f6fa);
+  border: 1.5px solid rgba(24,24,40,.16); background: linear-gradient(180deg,#fff,#f5f6fa);
   box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,.04), 0 14px 26px -14px rgba(29,27,46,.2),
     0 12px 0 -7px rgba(255,255,255,.8), 0 13px 1px -7px rgba(0,0,0,.05); margin-bottom: 10px; }
 .card-x::before { content: ''; position: absolute; z-index: -1; left: 0; right: 0; bottom: 0; height: 55%;
@@ -401,33 +401,81 @@ section[id] { scroll-margin-top: 1rem; }
 .suggest-ico-lg { width: 44px; height: 44px; }
 .suggest-cta { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 6px; }
 
-/* ── Payout stage (light grid panel with a fanned card stack) ── */
-.pay-panel { position: relative; overflow: hidden; max-width: 380px; margin: 0 auto; padding: 26px 16px 22px; border-radius: 40px; text-align: center; background-color: #ececed;
+/* ── Payout stage (grid panel, square main card, stacked layers behind) ── */
+.pay-panel { position: relative; overflow: hidden; max-width: 380px; margin: 0 auto; padding: 64px 16px 24px; border-radius: 40px; text-align: center; background-color: #ececed;
   background-image: linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px); background-size: 46px 46px; background-position: center;
-  box-shadow: inset 0 1px 0 #fff, 0 24px 40px -26px rgba(29,27,46,.35); }
-.pay-rings { position: absolute; left: 50%; top: 42%; width: 120%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid rgba(0,0,0,.07); pointer-events: none; }
-.pay-stage { position: relative; height: 210px; margin-bottom: 26px; }
-.pay-card { position: absolute; left: 50%; top: 10px; width: 160px; height: 190px; padding: 14px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; cursor: pointer;
-  border-radius: 28px; border: 3px solid transparent; background: linear-gradient(#f7f7f7,#f7f7f7) padding-box, linear-gradient(#e4e4e5,#e4e4e5) border-box;
-  box-shadow: 0 18px 28px -16px rgba(29,27,46,.35); transition: transform .45s cubic-bezier(.2,.7,.2,1), opacity .3s; }
-.pay-card[data-k="0"] { transform: translateX(-50%); z-index: 5; cursor: default; background: linear-gradient(#fff,#fff) padding-box, linear-gradient(225deg, #f59e0b 0%, #d946ef 24%, #e4e4e5 48%) border-box; }
-.pay-card[data-k="1"], .pay-card[data-k="-1"] { z-index: 3; }
-.pay-card[data-k="1"] { transform: translateX(calc(-50% + 92px)) scale(.86); }
-.pay-card[data-k="-1"] { transform: translateX(calc(-50% - 92px)) scale(.86); }
-.pay-card[data-k="2"] { z-index: 1; opacity: 0; transform: translateX(calc(-50% + 40px)) scale(.7); pointer-events: none; }
-.pay-card[data-k="-2"] { z-index: 1; opacity: 0; transform: translateX(calc(-50% - 40px)) scale(.7); pointer-events: none; }
-.pay-card:not([data-k="0"]) .pay-tag, .pay-card:not([data-k="0"]) .pay-dot, .pay-card:not([data-k="0"]) .pay-name, .pay-card:not([data-k="0"]) .pay-note { opacity: 0; }
-.pay-card:not([data-k="0"]) .pay-logo { opacity: .45; filter: grayscale(1); }
-.pay-tag { font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 11px; color: var(--ink); }
-.pay-dot { position: absolute; top: 12px; right: 12px; width: 14px; height: 14px; border-radius: 50%; background: #10a35a; box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(16,163,90,.35); }
-.pay-logo { width: 64px; height: 64px; margin: 18px auto 14px; display: flex; align-items: center; justify-content: center; border-radius: 20px; background: #efeff0; box-shadow: inset 0 1px 0 #fff, 0 8px 14px -8px rgba(29,27,46,.3); }
-.pay-logo svg { width: 34px; height: 34px; }
-.pay-logo svg.w-10 { width: 44px; height: 22px; }
+  border: 1.5px solid rgba(24,24,40,.14); box-shadow: inset 0 1px 0 #fff, 0 24px 40px -26px rgba(29,27,46,.35); }
+.pay-panel::before { content: ''; position: absolute; left: 5%; right: 5%; top: 160px; border-top: 1px solid rgba(0,0,0,.09); }
+.pay-rings { position: absolute; left: 50%; top: 45%; width: 125%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid rgba(0,0,0,.07); pointer-events: none; }
+.pay-tiles { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
+.pay-tiles span { width: 62px; height: 62px; border-radius: 20px; background: rgba(255,255,255,.6); box-shadow: 0 8px 14px -10px rgba(29,27,46,.3); }
+.pay-stage { position: relative; height: 190px; margin-bottom: 36px; }
+.pay-card { position: absolute; left: 50%; top: 11px; width: 168px; height: 168px; padding: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;
+  border-radius: 30px; border: 3px solid transparent; background: linear-gradient(#f6f6f7,#f6f6f7) padding-box, linear-gradient(#e2e2e4,#e2e2e4) border-box;
+  box-shadow: 0 16px 26px -16px rgba(29,27,46,.35); transition: transform .5s cubic-bezier(.2,.7,.2,1), opacity .3s; }
+.pay-card[data-k="0"] { transform: translateX(-50%); z-index: 5; cursor: default;
+  background: linear-gradient(#fff,#fff) padding-box, conic-gradient(from 0deg, #f59e0b 0deg, #ec4899 28deg, #c084fc 60deg, #e2e2e4 105deg, #e2e2e4 300deg, #fbbf24 335deg, #f59e0b 360deg) border-box; }
+.pay-card[data-k="1"] { z-index: 3; transform: translateX(calc(-50% + 46px)) scale(.88); }
+.pay-card[data-k="-1"] { z-index: 3; transform: translateX(calc(-50% - 46px)) scale(.88); }
+.pay-card[data-k="2"] { z-index: 2; transform: translateX(calc(-50% + 86px)) scale(.76); }
+.pay-card[data-k="-2"] { z-index: 2; transform: translateX(calc(-50% - 86px)) scale(.76); }
+.pay-card:not([data-k="0"]) > * { opacity: 0; }
+.pay-tag { align-self: flex-start; font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 11px; color: var(--ink); }
+.pay-dot { position: absolute; top: 11px; right: 11px; width: 14px; height: 14px; border-radius: 50%; background: #10a35a; box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(16,163,90,.35); }
+.pay-logo { width: 58px; height: 58px; margin: 10px auto 10px; display: flex; align-items: center; justify-content: center; border-radius: 19px; background: #efeff0; box-shadow: inset 0 1px 0 #fff, 0 8px 14px -8px rgba(29,27,46,.3); }
+.pay-logo svg { width: 32px; height: 32px; }
+.pay-logo svg.w-10 { width: 42px; height: 21px; }
 .pay-name { font-family: 'Bricolage Grotesque', ui-sans-serif, sans-serif; font-weight: 700; font-size: 17px; color: var(--ink); line-height: 1.1; }
 .pay-note { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; color: var(--ink-faint); margin-top: 3px; }
 .pay-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 11px 24px; border-radius: 999px; color: #fff; font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 13px; font-weight: 500;
   background: linear-gradient(180deg, #4c8bff, #2f6df0); box-shadow: 0 0 0 5px rgba(59,130,246,.12), 0 0 0 6px rgba(59,130,246,.25), 0 10px 18px -8px rgba(47,109,240,.7); }
+.pay-btn::before { content: ''; position: absolute; left: 50%; top: -30px; width: 1px; height: 20px; background: rgba(0,0,0,.2); }
 .pay-dots { display: flex; justify-content: center; gap: 6px; margin-top: 20px; }
 .pay-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,.18); transition: width .3s, background .3s; }
 .pay-dots span.on { width: 18px; border-radius: 6px; background: rgba(0,0,0,.55); }
-@media (prefers-reduced-motion: reduce) { .pay-card { transition: none; } }
+
+/* ── Hero 3D chain (stacked-slice CSS 3D) ── */
+.c3-scene { position: relative; width: 200px; height: 230px; margin: 0 auto 6px; perspective: 900px; }
+.c3-float { position: absolute; inset: 0; animation: c3-float 4s ease-in-out infinite; }
+.c3-rot { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; animation: c3-spin 14s linear infinite; }
+.c3-link { position: absolute; left: -36px; width: 72px; height: 124px; transform-style: preserve-3d; }
+.c3-a { top: -92px; }
+.c3-b { top: -32px; transform: rotateY(90deg); }
+.c3-slice { position: absolute; inset: 0; border: 13px solid var(--c); border-radius: 40px; }
+.c3-shadow { position: absolute; left: 50%; bottom: 4px; width: 120px; height: 16px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(rgba(29,27,46,.28), transparent 70%); animation: c3-shadow 4s ease-in-out infinite; }
+@keyframes c3-spin { from { transform: rotateX(-14deg) rotateY(0deg); } to { transform: rotateX(-14deg) rotateY(360deg); } }
+@keyframes c3-float { 50% { transform: translateY(-10px); } }
+@keyframes c3-shadow { 50% { transform: translateX(-50%) scale(.82); opacity: .7; } }
+
+/* ── Shorten card (price/volume widget style) ── */
+.sh-card { position: relative; overflow: hidden; width: 100%; padding: 20px 20px 6px; text-align: left; border-radius: 32px; background: linear-gradient(180deg, #fff, #f6f6f8);
+  border: 1.5px solid rgba(24,24,40,.16); box-shadow: inset 0 1px 0 #fff, 0 0 0 5px rgba(255,255,255,.7), 0 0 0 6px rgba(24,24,40,.07), 0 24px 36px -22px rgba(29,27,46,.35); }
+.sh-card::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 60px; pointer-events: none;
+  background: radial-gradient(50% 100% at 25% 130%, rgba(10,132,255,.24), transparent 70%), radial-gradient(50% 100% at 75% 130%, rgba(255,45,143,.24), transparent 70%); }
+.sh-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.sh-eyebrow { font-size: 13px; letter-spacing: .04em; font-weight: 500; color: #8a8a93; }
+.sh-chip { font-size: 12px; font-weight: 600; color: var(--ink); background: #e4e4e7; border-radius: 10px; padding: 5px 11px; }
+.sh-divider { height: 1px; background: rgba(0,0,0,.09); margin: 18px -20px 0; }
+.sh-row { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; padding: 12px 0; font-size: 15px; font-weight: 500; }
+.sh-row i { width: 5px; height: 20px; border-radius: 3px; }
+.sh-row span { flex: 1; }
+.sh-blue { color: #0a84ff; } .sh-blue i { background: #0a84ff; }
+.sh-pink { color: #ff2d8f; } .sh-pink i { background: #ff2d8f; }
+.sh-wave { position: relative; height: 84px; margin-top: 2px; }
+.sh-wave::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,0,0,.18) 1px, transparent 1.5px) 0 0 / 9px 9px;
+  -webkit-mask-image: radial-gradient(60% 100% at 50% 0, #000, transparent); mask-image: radial-gradient(60% 100% at 50% 0, #000, transparent); }
+.sh-handle { position: absolute; left: 50%; width: 14px; height: 26px; margin-left: -7px; border-radius: 8px; border: 2.5px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,.22); }
+
+/* ── Feature cards (tag + title + text, glossy 3D illustration on the right) ── */
+.feat-card { display: flex; align-items: center; gap: 12px; padding: 22px 18px 22px 22px; }
+.feat-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; color: #3b6fd8; background: #e8f0fe; border-radius: 9px; padding: 5px 10px; }
+.feat-3d { position: relative; flex-shrink: 0; width: 96px; height: 104px; animation: feat-float 4.5s ease-in-out infinite; }
+.feat-sheet { position: absolute; right: 2px; top: 2px; width: 50px; height: 62px; border-radius: 10px; transform: rotate(9deg); background: #fff; box-shadow: 0 10px 14px -8px rgba(29,27,46,.3);
+  background-image: repeating-linear-gradient(180deg, transparent 0 14px, color-mix(in srgb, var(--t) 70%, #fff) 14px 19px); background-size: 70% 100%; background-repeat: no-repeat; background-position: 8px 4px; }
+.feat-tile { position: absolute; left: 4px; bottom: 6px; width: 68px; height: 68px; display: flex; align-items: center; justify-content: center; border-radius: 24px; color: #fff; transform: rotate(-8deg);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--t) 62%, #fff), var(--t) 55%, color-mix(in srgb, var(--t) 70%, #000));
+  box-shadow: inset 0 2px 3px rgba(255,255,255,.65), inset 0 -8px 12px rgba(0,0,0,.18), 0 16px 20px -8px color-mix(in srgb, var(--t) 70%, #000); }
+.feat-tile svg { filter: drop-shadow(0 2px 3px rgba(0,0,0,.25)); }
+.feat-chip { position: absolute; right: 0; bottom: 0; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: color-mix(in srgb, var(--t) 75%, #000); background: #e3eafc; box-shadow: inset 0 1px 0 #fff, 0 6px 10px -4px rgba(29,27,46,.3); }
+@keyframes feat-float { 50% { transform: translateY(-5px); } }
+@media (prefers-reduced-motion: reduce) { .pay-card { transition: none; } .c3-rot, .c3-float, .c3-shadow, .feat-3d { animation: none; } }
