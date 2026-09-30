@@ -9,6 +9,7 @@ const express = require('express');
 const crypto = require('crypto');
 const db = require('./db');
 const { hashPassword, verifyPassword } = require('./password-utils');
+const { resolveReferrer } = require('./referrals');
 
 const router = express.Router();
 
@@ -46,11 +47,7 @@ router.post('/signup', async (req, res) => {
       return res.status(409).json({ error: 'An account with that email already exists.' });
     }
 
-    let referredBy = null;
-    if (ref) {
-      const r = await db.query('SELECT id FROM users WHERE id = $1', [ref]).catch(() => ({ rows: [] }));
-      referredBy = r.rows[0]?.id || null;
-    }
+    const referredBy = await resolveReferrer(ref);
 
     const passwordHash = hashPassword(String(password));
     const { rows } = await db.query(
@@ -230,11 +227,7 @@ router.get('/google/callback', async (req, res) => {
         );
         user = rows[0];
       } else {
-        let referredBy = null;
-        if (ref) {
-          const r = await db.query('SELECT id FROM users WHERE id = $1', [ref]).catch(() => ({ rows: [] }));
-          referredBy = r.rows[0]?.id || null;
-        }
+        const referredBy = await resolveReferrer(ref);
         const { rows } = await db.query(
           `INSERT INTO users (email, google_id, display_name, avatar_url, referred_by, email_verified_at)
            VALUES ($1, $2, $3, $4, $5, now())
