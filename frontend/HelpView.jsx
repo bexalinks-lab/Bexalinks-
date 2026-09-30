@@ -12,7 +12,7 @@ export const FAQ = [
   ['Which payout methods are supported?', 'PayPal, Payoneer, bank transfer, USDT and UPI. Choose one in Payouts.'],
 ];
 
-const INPUT = 'w-full bg-white/60 border border-white/70 rounded-2xl px-4 py-2.5 text-base sm:text-sm font-body focus:outline-none focus:ring-2 focus:ring-indigo-400';
+const INPUT = 'w-full bg-white border border-slate-300 hover:border-slate-400 rounded-2xl px-4 py-2.5 text-base sm:text-sm font-body text-[var(--ink)] placeholder-[var(--ink-faint)] transition-colors focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200';
 
 export default function HelpView({ PageHeader, toast }) {
   const [open, setOpen] = useState(0);
