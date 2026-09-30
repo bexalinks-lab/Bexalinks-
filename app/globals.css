@@ -383,3 +383,51 @@ section[id] { scroll-margin-top: 1rem; }
 .ax-bob { animation: ax-bob 3.6s ease-in-out infinite; }
 @keyframes ax-bob { 50% { transform: translateY(-5px) rotate(-2deg); } }
 @media (prefers-reduced-motion: reduce) { .ax-bob { animation: none; } }
+
+/* ── App-icon tile (dark glossy squircle, home-screen style) ── */
+.app-icon { position: relative; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 28%;
+  background: radial-gradient(120% 100% at 30% 0%, #3b4048 0%, #1b1e23 55%, #0f1114 100%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), inset 0 1px 0 rgba(255,255,255,.2), 0 10px 20px -10px rgba(10,12,20,.6); }
+
+/* ── "Suggest for you" style card (game-changer banner) ── */
+.suggest-card { max-width: 380px; margin: 0 auto; padding: 8px 8px 12px; border-radius: 34px; background: #ededee;
+  box-shadow: inset 0 1px 0 #fff, 0 24px 40px -24px rgba(29,27,46,.35), 0 0 0 1px rgba(0,0,0,.04); }
+.suggest-head { padding: 16px 18px; border-radius: 26px; background: linear-gradient(100deg, #e2f3d6 0%, #e8eefb 55%, #dde6fb 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 6px 10px -6px rgba(29,27,46,.25); }
+.suggest-row { display: flex; align-items: center; gap: 14px; margin: 0 14px; padding: 11px 0; border-bottom: 1px solid rgba(0,0,0,.09); }
+.suggest-row:last-child { border-bottom: 0; }
+.suggest-ico { width: 38px; height: 38px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: var(--ink);
+  background: linear-gradient(160deg, #fff, #efeff0); box-shadow: inset 0 1px 0 #fff, 0 6px 10px -5px rgba(29,27,46,.3); }
+.suggest-ico-lg { width: 44px; height: 44px; }
+.suggest-cta { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 6px; }
+
+/* ── Payout stage (light grid panel with a fanned card stack) ── */
+.pay-panel { position: relative; overflow: hidden; max-width: 380px; margin: 0 auto; padding: 26px 16px 22px; border-radius: 40px; text-align: center; background-color: #ececed;
+  background-image: linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px); background-size: 46px 46px; background-position: center;
+  box-shadow: inset 0 1px 0 #fff, 0 24px 40px -26px rgba(29,27,46,.35); }
+.pay-rings { position: absolute; left: 50%; top: 42%; width: 120%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid rgba(0,0,0,.07); pointer-events: none; }
+.pay-stage { position: relative; height: 210px; margin-bottom: 26px; }
+.pay-card { position: absolute; left: 50%; top: 10px; width: 160px; height: 190px; padding: 14px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; cursor: pointer;
+  border-radius: 28px; border: 3px solid transparent; background: linear-gradient(#f7f7f7,#f7f7f7) padding-box, linear-gradient(#e4e4e5,#e4e4e5) border-box;
+  box-shadow: 0 18px 28px -16px rgba(29,27,46,.35); transition: transform .45s cubic-bezier(.2,.7,.2,1), opacity .3s; }
+.pay-card[data-k="0"] { transform: translateX(-50%); z-index: 5; cursor: default; background: linear-gradient(#fff,#fff) padding-box, linear-gradient(225deg, #f59e0b 0%, #d946ef 24%, #e4e4e5 48%) border-box; }
+.pay-card[data-k="1"], .pay-card[data-k="-1"] { z-index: 3; }
+.pay-card[data-k="1"] { transform: translateX(calc(-50% + 92px)) scale(.86); }
+.pay-card[data-k="-1"] { transform: translateX(calc(-50% - 92px)) scale(.86); }
+.pay-card[data-k="2"] { z-index: 1; opacity: 0; transform: translateX(calc(-50% + 40px)) scale(.7); pointer-events: none; }
+.pay-card[data-k="-2"] { z-index: 1; opacity: 0; transform: translateX(calc(-50% - 40px)) scale(.7); pointer-events: none; }
+.pay-card:not([data-k="0"]) .pay-tag, .pay-card:not([data-k="0"]) .pay-dot, .pay-card:not([data-k="0"]) .pay-name, .pay-card:not([data-k="0"]) .pay-note { opacity: 0; }
+.pay-card:not([data-k="0"]) .pay-logo { opacity: .45; filter: grayscale(1); }
+.pay-tag { font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 11px; color: var(--ink); }
+.pay-dot { position: absolute; top: 12px; right: 12px; width: 14px; height: 14px; border-radius: 50%; background: #10a35a; box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(16,163,90,.35); }
+.pay-logo { width: 64px; height: 64px; margin: 18px auto 14px; display: flex; align-items: center; justify-content: center; border-radius: 20px; background: #efeff0; box-shadow: inset 0 1px 0 #fff, 0 8px 14px -8px rgba(29,27,46,.3); }
+.pay-logo svg { width: 34px; height: 34px; }
+.pay-logo svg.w-10 { width: 44px; height: 22px; }
+.pay-name { font-family: 'Bricolage Grotesque', ui-sans-serif, sans-serif; font-weight: 700; font-size: 17px; color: var(--ink); line-height: 1.1; }
+.pay-note { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; color: var(--ink-faint); margin-top: 3px; }
+.pay-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 11px 24px; border-radius: 999px; color: #fff; font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 13px; font-weight: 500;
+  background: linear-gradient(180deg, #4c8bff, #2f6df0); box-shadow: 0 0 0 5px rgba(59,130,246,.12), 0 0 0 6px rgba(59,130,246,.25), 0 10px 18px -8px rgba(47,109,240,.7); }
+.pay-dots { display: flex; justify-content: center; gap: 6px; margin-top: 20px; }
+.pay-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,.18); transition: width .3s, background .3s; }
+.pay-dots span.on { width: 18px; border-radius: 6px; background: rgba(0,0,0,.55); }
+@media (prefers-reduced-motion: reduce) { .pay-card { transition: none; } }
