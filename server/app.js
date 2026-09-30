@@ -50,9 +50,13 @@ app.use('/', redirectEngine);
 
 const PORT = process.env.PORT || 3000;
 
-runMigrations().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Bexalink running at http://localhost:${PORT}`);
-    console.log(`Try shortening a link, then visiting http://localhost:${PORT}/<short_code>`);
-  });
+// Open the port first so the host (Render) sees the service as up, then run
+// migrations in the background. If the database is slow or unreachable the
+// error shows up in the logs instead of the deploy hanging forever.
+app.listen(PORT, () => {
+  console.log(`Bexalink running at http://localhost:${PORT}`);
+  console.log(`Try shortening a link, then visiting http://localhost:${PORT}/<short_code>`);
+  runMigrations()
+    .then(() => console.log('[migrate] Done.'))
+    .catch((err) => console.error('[migrate] Failed:', err.message));
 });
