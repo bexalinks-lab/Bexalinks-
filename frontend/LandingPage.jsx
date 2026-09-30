@@ -173,9 +173,12 @@ function HeroShortenBar() {
   }
 
   return (
-    <div className="font-shorten max-w-md">
-      {/* Shorten box: outlined container → centred pill input → rainbow-ring button */}
-      <div className="shorten-box flex flex-col gap-5">
+    <div className="font-shorten w-full max-w-md">
+      <div className="sh-card">
+        <div className="sh-head">
+          <span className="sh-eyebrow">SHORTEN &amp; EARN</span>
+          <span className="sh-chip">Free to join</span>
+        </div>
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
@@ -184,9 +187,20 @@ function HeroShortenBar() {
           aria-label="Link to shorten"
           className="shorten-input"
         />
-        <CtaButton variant="shorten" onClick={shorten} disabled={busy} className="mx-3 py-2 rounded-full text-[15px]">
+        <CtaButton variant="shorten" onClick={shorten} disabled={busy} className="mx-2 mt-4 py-2 rounded-full text-[15px] w-[calc(100%-1rem)]">
           {busy ? 'Shortening…' : 'Shorten'}
         </CtaButton>
+        <div className="sh-divider" />
+        <div className="sh-row sh-blue"><i /><span>First payout</span><b>$5</b></div>
+        <div className="sh-row sh-pink"><i /><span>Card required</span><b>No</b></div>
+      </div>
+      <div className="sh-wave" aria-hidden="true">
+        <svg viewBox="0 0 380 70" preserveAspectRatio="none" className="absolute inset-0 w-full h-full">
+          <path d="M0 40 Q190 -6 380 40" fill="none" stroke="rgba(10,132,255,.25)" strokeWidth="2" />
+          <path d="M0 46 Q190 84 380 40" fill="none" stroke="rgba(255,45,143,.25)" strokeWidth="2" />
+        </svg>
+        <span className="sh-handle" style={{ top: 8, background: '#0a84ff' }} />
+        <span className="sh-handle" style={{ top: 38, background: '#ff2d8f' }} />
       </div>
       {result && (
         <div className="mt-3 flex items-center gap-2 text-sm text-[var(--ink-soft)]">
@@ -408,16 +422,33 @@ function DashboardMockup() {
   );
 }
 
+function Chain3D() {
+  // Two interlocked chain links built from stacked CSS slices (no 3D library needed).
+  const zs = Array.from({ length: 13 }, (_, i) => i - 6);
+  const Link = ({ cls, color }) => (
+    <div className={`c3-link ${cls}`}>
+      {zs.map((z) => (
+        <span key={z} className="c3-slice" style={{ '--c': color, transform: `translateZ(${z * 1.6}px)`, filter: `brightness(${(0.82 + (1 - Math.abs(z) / 6) * 0.34).toFixed(2)})` }} />
+      ))}
+    </div>
+  );
+  return (
+    <div className="c3-scene" aria-hidden="true">
+      <div className="c3-float">
+        <div className="c3-rot">
+          <Link cls="c3-a" color="#3b82f6" />
+          <Link cls="c3-b" color="#10b981" />
+        </div>
+      </div>
+      <div className="c3-shadow" />
+    </div>
+  );
+}
+
 function Hero() {
   return (
     <section className="relative px-6 sm:px-10 max-w-5xl mx-auto pt-12 sm:pt-20 pb-10 text-center">
-      <div className="relative inline-block mt-16 mb-7">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/axolotl.png" alt="" width={150} height={103} className="ax-bob absolute left-1/2 -translate-x-1/2 bottom-[calc(100%-16px)] w-[150px] h-auto select-none pointer-events-none" />
-        <span className="relative z-10 inline-flex items-center gap-2 bg-white border border-black/10 shadow-[0_8px_20px_-10px_rgba(29,27,46,.35)] rounded-full px-5 py-2.5 text-sm font-body font-semibold text-[var(--ink)]">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" /> Payouts from just $5
-        </span>
-      </div>
+      <Chain3D />
       <h1 className="font-display font-extrabold text-[2.5rem] sm:text-6xl leading-[1.05] text-[var(--ink)] mb-5 max-w-2xl mx-auto">
         Every link you share can pay you back.
       </h1>
@@ -469,12 +500,18 @@ function HowItWorks() {
 }
 
 function FeatureCard({ icon: Icon, gradient, title, children }) {
+  const tint = tintOf(gradient);
   return (
-    <div className="lift card-x p-6 flex gap-4">
-      <IconBadge icon={Icon} gradient={gradient} />
-      <div className="flex-1">
-        <h3 className="font-display text-[var(--ink)] text-base font-bold mb-1.5">{title}</h3>
+    <div className="lift card-x feat-card" style={{ '--t': tint }}>
+      <div className="flex-1 min-w-0">
+        <span className="feat-tag">FEATURE</span>
+        <h3 className="font-display text-[var(--ink)] text-[1.2rem] leading-tight font-bold mt-3 mb-1.5">{title}</h3>
         <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed">{children}</p>
+      </div>
+      <div className="feat-3d" aria-hidden="true">
+        <span className="feat-sheet" />
+        <span className="feat-tile"><Icon size={30} strokeWidth={2} /></span>
+        <span className="feat-chip"><Icon size={16} strokeWidth={2.2} /></span>
       </div>
     </div>
   );
@@ -695,16 +732,24 @@ const PAYOUT_METHODS = [
 
 function Payouts() {
   const [i, setI] = useState(0);
+  const last = useRef(0);
   const n = PAYOUT_METHODS.length;
   const cur = PAYOUT_METHODS[i];
   // Offset of each card from the centre, wrapped into -2..2.
   const offset = (idx) => ((idx - i + n + 2) % n) - 2;
+  useEffect(() => {
+    const t = setInterval(() => {
+      if (Date.now() - last.current > 6000) setI((v) => (v + 1) % n);
+    }, 3200);
+    return () => clearInterval(t);
+  }, [n]);
   return (
     <section id="payouts" className="px-6 sm:px-10 max-w-5xl mx-auto py-10 relative">
       <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">Five ways to get paid, worldwide.</h2>
       <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">Pick the one that suits where you live and withdraw to it.</p>
       <div className="pay-panel">
         <div className="pay-rings" aria-hidden="true" />
+        <div className="pay-tiles" aria-hidden="true"><span /><span /><span /></div>
         <div className="pay-stage">
           {PAYOUT_METHODS.map((m, idx) => {
             const k = offset(idx);
@@ -714,7 +759,7 @@ function Payouts() {
                 type="button"
                 className="pay-card"
                 data-k={k}
-                onClick={() => setI(idx)}
+                onClick={() => { last.current = Date.now(); setI(idx); }}
                 aria-label={k === 0 ? m.name : `Show ${m.name}`}
                 aria-current={k === 0}
               >
