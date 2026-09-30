@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight, Globe2, Landmark, Link2, Menu, ShieldCheck, Wallet, Users, Copy, X,
-  TrendingUp, LayoutDashboard, Headset, CheckCircle2,
+  TrendingUp, LayoutDashboard, Headset, CheckCircle2, Star,
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
@@ -197,12 +197,28 @@ function HeroShortenBar() {
   );
 }
 
-function WidgetStat({ label, value, sublabel, gradient }) {
+function SectionHead({ eyebrow, title, sub, className = '' }) {
   return (
-    <div className={`glass rounded-3xl p-5 relative overflow-hidden`}>
-      <div className={`absolute -top-10 -right-10 w-28 h-28 rounded-full ${gradient} opacity-30 blur-2xl`} />
-      <p className="text-xs font-body font-medium text-[var(--ink-faint)] mb-2 relative z-10">{label}</p>
-      <p className="font-display font-bold text-3xl text-[var(--ink)] relative z-10">{value}</p>
+    <div className={`mb-8 max-w-lg ${className}`}>
+      <span className="inline-flex glass rounded-full px-3 py-1 text-[11px] font-body font-semibold tracking-wider uppercase text-indigo-600 mb-3">{eyebrow}</span>
+      <h2 className="font-display font-extrabold text-3xl sm:text-4xl leading-tight text-[var(--ink)] mb-2">{title}</h2>
+      {sub && <p className="font-body text-[var(--ink-soft)] text-sm sm:text-base leading-relaxed">{sub}</p>}
+    </div>
+  );
+}
+
+// Dashboard-style stat tile: icon badge, big value, soft colour wash.
+function WidgetStat({ label, value, sublabel, gradient, icon: Icon }) {
+  return (
+    <div className="lift glass-strong rounded-3xl p-5 relative overflow-hidden">
+      <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full ${gradient} opacity-25 blur-2xl`} />
+      {Icon && (
+        <span className={`relative z-10 mb-4 w-10 h-10 rounded-2xl ${gradient} flex items-center justify-center shadow-md`}>
+          <Icon size={18} className="text-white" />
+        </span>
+      )}
+      <p className="text-xs font-body font-medium text-[var(--ink-faint)] mb-1 relative z-10">{label}</p>
+      <p className="font-display font-extrabold text-3xl text-[var(--ink)] relative z-10">{value}</p>
       {sublabel && <p className="text-xs font-body text-[var(--ink-faint)] mt-1 relative z-10">{sublabel}</p>}
     </div>
   );
@@ -245,19 +261,18 @@ function StatsSection() {
   const links = useCountUp(stats?.totalLinks);
 
   const items = [
-    { label: 'Total paid out', value: stats ? `$${paid.toLocaleString()}` : '—', gradient: 'bg-violet-500' },
-    { label: 'Publishers', value: stats ? users.toLocaleString() : '—', gradient: 'bg-emerald-500' },
-    { label: 'Views tracked', value: stats ? views.toLocaleString() : '—', gradient: 'bg-amber-500' },
-    { label: 'Links shortened', value: stats ? links.toLocaleString() : '—', gradient: 'bg-rose-500' },
+    { label: 'Total paid out', value: stats ? `$${paid.toLocaleString()}` : '—', gradient: 'bg-violet-500', icon: Wallet },
+    { label: 'Publishers', value: stats ? users.toLocaleString() : '—', gradient: 'bg-emerald-500', icon: Users },
+    { label: 'Views tracked', value: stats ? views.toLocaleString() : '—', gradient: 'bg-amber-500', icon: TrendingUp },
+    { label: 'Links shortened', value: stats ? links.toLocaleString() : '—', gradient: 'bg-rose-500', icon: Link2 },
   ];
 
   return (
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
-      <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">Bexalink, by the numbers.</h2>
-      <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">Live stats from our publisher network — updated in real time, no filler.</p>
+      <SectionHead eyebrow="Live stats" title="Bexalink, by the numbers." sub="Live stats from our publisher network — updated in real time, no filler." />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {items.map((it) => (
-          <WidgetStat key={it.label} label={it.label} value={it.value} gradient={it.gradient} />
+          <WidgetStat key={it.label} label={it.label} value={it.value} gradient={it.gradient} icon={it.icon} />
         ))}
       </div>
     </section>
@@ -413,15 +428,14 @@ function Hero() {
 
 function Step({ n, icon: Icon, gradient, title, children }) {
   return (
-    <div className="glass rounded-3xl p-6 flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <IconBadge icon={Icon} gradient={gradient} />
-        <span className="font-display font-bold text-2xl text-[var(--ink-faint)]">{n}</span>
-      </div>
+    <div className="lift glass-strong rounded-3xl p-6 flex flex-col gap-5 relative overflow-hidden">
+      <span className="absolute -top-3 right-4 font-display font-extrabold text-7xl text-black/[0.05] select-none">{n}</span>
+      <IconBadge icon={Icon} gradient={gradient} size={52} />
       <div>
-        <h3 className="font-body text-[var(--ink)] text-base font-bold mb-1.5">{title}</h3>
+        <h3 className="font-display text-[var(--ink)] text-lg font-bold mb-1.5">{title}</h3>
         <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed">{children}</p>
       </div>
+      <span className="text-[11px] font-body font-semibold text-indigo-600 bg-indigo-500/10 rounded-full px-3 py-1 self-start">Step {n}</span>
     </div>
   );
 }
@@ -429,8 +443,7 @@ function Step({ n, icon: Icon, gradient, title, children }) {
 function HowItWorks() {
   return (
     <section id="how-it-works" className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
-      <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">From link to payout, three steps.</h2>
-      <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">Shorten it, share it, get paid for it.</p>
+      <SectionHead eyebrow="How it works" title="From link to payout, three steps." sub="Shorten it, share it, get paid for it." />
       <div className="grid sm:grid-cols-3 gap-5">
         <Step n="01" icon={Link2} gradient="bg-gradient-to-br from-indigo-400 to-indigo-600" title="Shorten your link">
           Paste any destination URL into your dashboard or the API. Bexalink
@@ -451,7 +464,8 @@ function HowItWorks() {
 
 function FeatureCard({ icon: Icon, gradient, title, children }) {
   return (
-    <div className="glass rounded-3xl p-6 flex gap-4">
+    <div className="lift glass-strong rounded-3xl p-6 flex gap-4 relative overflow-hidden">
+      <div className={`absolute -bottom-14 -right-14 w-36 h-36 rounded-full ${gradient} opacity-15 blur-2xl`} />
       <IconBadge icon={Icon} gradient={gradient} />
       <div>
         <h3 className="font-body text-[var(--ink)] text-sm font-bold mb-1.5">{title}</h3>
@@ -465,7 +479,8 @@ function Features() {
   return (
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
       <div className="mb-8 max-w-lg">
-        <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-3">
+        <span className="inline-flex glass rounded-full px-3 py-1 text-[11px] font-body font-semibold tracking-wider uppercase text-indigo-600 mb-3">Features</span>
+        <h2 className="font-display font-extrabold text-3xl sm:text-4xl leading-tight text-[var(--ink)] mb-3">
           Built on the parts of ad monetization people complain about most.
         </h2>
         <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed">
@@ -510,12 +525,17 @@ function Features() {
 
 function RateRow({ country, cpm, flag }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-white/40 last:border-0">
-      <span className="font-body text-sm text-[var(--ink)] flex items-center gap-2">
-        {flag && <span className="text-lg" aria-hidden="true">{flag}</span>}
-        {country}
-      </span>
-      <span className="font-display font-semibold text-sm text-[var(--ink)]">${cpm.toFixed(2)}</span>
+    <div className="py-3 border-b border-black/5 last:border-0">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-body text-sm font-medium text-[var(--ink)] flex items-center gap-3">
+          <span className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-lg" aria-hidden="true">{flag}</span>
+          {country}
+        </span>
+        <span className="font-display font-bold text-base text-[var(--ink)]">${cpm.toFixed(2)}</span>
+      </div>
+      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+        <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-pink-500" style={{ width: `${Math.min(100, (cpm / 6.2) * 100)}%` }} />
+      </div>
     </div>
   );
 }
@@ -524,7 +544,8 @@ function Rates() {
   return (
     <section id="rates" className="px-6 sm:px-10 max-w-5xl mx-auto py-10 grid lg:grid-cols-2 gap-10 items-start">
       <div>
-        <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-3">Priced by where your viewer is.</h2>
+        <span className="inline-flex glass rounded-full px-3 py-1 text-[11px] font-body font-semibold tracking-wider uppercase text-indigo-600 mb-3">CPM rates</span>
+        <h2 className="font-display font-extrabold text-3xl sm:text-4xl leading-tight text-[var(--ink)] mb-3">Priced by where your viewer is.</h2>
         <p className="font-body text-[var(--ink-soft)] text-sm leading-relaxed max-w-sm">
           The figures below are current per-1,000-view averages. Your
           dashboard shows the live rate for every country sending you
@@ -532,7 +553,11 @@ function Rates() {
         </p>
       </div>
       <div>
-        <div className="glass rounded-3xl px-6 py-2">
+        <div className="glass-strong rounded-3xl px-6 pt-5 pb-2">
+          <div className="flex items-center justify-between pb-2 border-b border-black/5">
+            <span className="font-display font-bold text-sm text-[var(--ink)]">CPM per 1,000 views</span>
+            <span className="text-[11px] font-body px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 font-medium">Live</span>
+          </div>
           <RateRow country="United States" cpm={6.2} flag="🇺🇸" />
           <RateRow country="United Kingdom" cpm={5.4} flag="🇬🇧" />
           <RateRow country="Germany" cpm={5.1} flag="🇩🇪" />
@@ -571,20 +596,26 @@ const TESTIMONIALS = [
 function Testimonial() {
   return (
     <section className="px-6 sm:px-10 max-w-5xl mx-auto py-10">
-      <h2 className="font-display font-bold text-3xl text-[var(--ink)] mb-2">Hear from our users.</h2>
-      <p className="font-body text-[var(--ink-soft)] mb-8 max-w-md">See what our users have to say about their experience with Bexalink.</p>
+      <SectionHead eyebrow="Testimonials" title="Hear from our users." sub="See what our users have to say about their experience with Bexalink." />
       <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 sm:mx-0 px-6 sm:px-0" style={{ scrollbarWidth: 'none' }}>
-        {TESTIMONIALS.map((t) => (
-          <div
-            key={t.name}
-            className="glass-strong rounded-3xl p-8 shrink-0 snap-center w-[85%] sm:w-[420px]"
-          >
-            <p className="font-display font-medium text-xl sm:text-2xl text-[var(--ink)] leading-snug mb-5">
-              {t.quote}
-            </p>
-            <p className="font-body text-sm text-[var(--ink-soft)]">{t.name}</p>
-          </div>
-        ))}
+        {TESTIMONIALS.map((t) => {
+          const [person, role] = t.name.split(' — ');
+          return (
+            <div key={t.name} className="lift glass-strong rounded-3xl p-6 shrink-0 snap-center w-[85%] sm:w-[380px] flex flex-col">
+              <div className="flex gap-0.5 mb-4">
+                {[0, 1, 2, 3, 4].map((i) => <Star key={i} size={15} className="text-amber-400 fill-amber-400" />)}
+              </div>
+              <p className="font-body text-base text-[var(--ink)] leading-relaxed mb-6 flex-1">&ldquo;{t.quote}&rdquo;</p>
+              <div className="flex items-center gap-3">
+                <span className={`w-10 h-10 rounded-full ${BRAND_GRADIENT} flex items-center justify-center text-white font-display font-bold text-sm`}>{person[0]}</span>
+                <span className="leading-tight">
+                  <span className="block font-body text-sm font-semibold text-[var(--ink)]">{person}</span>
+                  <span className="block font-body text-xs text-[var(--ink-faint)]">{role}</span>
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
       <p className="text-center text-xs font-body text-[var(--ink-faint)] mt-1 sm:hidden">← swipe →</p>
     </section>
