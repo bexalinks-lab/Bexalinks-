@@ -365,5 +365,21 @@ section[id] { scroll-margin-top: 1rem; }
 
 /* ── Card hover lift (landing + static pages) ── */
 .lift { transition: transform .25s ease, box-shadow .25s ease; }
-@media (hover: hover) { .lift:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -16px rgba(29,27,46,.22); } }
+@media (hover: hover) { .lift:hover { transform: translateY(-4px); } }
 @media (prefers-reduced-motion: reduce) { .lift { transition: none; } .lift:hover { transform: none; } }
+
+/* ── Squircle cards: stacked layers, bottom glow, gradient rim (from the UI references) ── */
+.card-x { position: relative; isolation: isolate; overflow: hidden; border-radius: 34px;
+  border: 1px solid rgba(255,255,255,.95); background: linear-gradient(180deg,#fff,#f5f6fa);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,.04), 0 14px 26px -14px rgba(29,27,46,.2),
+    0 12px 0 -7px rgba(255,255,255,.8), 0 13px 1px -7px rgba(0,0,0,.05); margin-bottom: 10px; }
+.card-x::before { content: ''; position: absolute; z-index: -1; left: 0; right: 0; bottom: 0; height: 55%;
+  background: radial-gradient(60% 90% at 18% 115%, rgba(96,165,250,.3), transparent 70%),
+              radial-gradient(60% 90% at 82% 115%, rgba(244,114,182,.28), transparent 70%); }
+.card-rim { border: 1.5px solid transparent;
+  background: linear-gradient(#fff,#f6f6f9) padding-box, linear-gradient(225deg,#fb923c,#c084fc 28%,transparent 55%) border-box; }
+.card-x.card-rim::before { opacity: .7; }
+.grid-bg { background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 32px 32px; }
+.ax-bob { animation: ax-bob 3.6s ease-in-out infinite; }
+@keyframes ax-bob { 50% { transform: translateY(-5px) rotate(-2deg); } }
+@media (prefers-reduced-motion: reduce) { .ax-bob { animation: none; } }
