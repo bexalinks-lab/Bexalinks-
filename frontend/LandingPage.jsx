@@ -376,26 +376,6 @@ function Reveal({ children, className = '', from = 'up', delay = 0 }) {
   );
 }
 
-// Thin gradient bar at the very top that fills as you scroll down the page.
-function ScrollProgress() {
-  const bar = useRef(null);
-  useEffect(() => {
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const h = document.documentElement.scrollHeight - window.innerHeight;
-      const v = h > 0 ? Math.min(1, window.scrollY / h) : 0;
-      if (bar.current) bar.current.style.transform = `scaleX(${v})`;
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, []);
-  return <div ref={bar} className="scroll-progress" aria-hidden="true" />;
-}
-
 const MOCK_LINKS = [
   { code: 'bexa.link/summer', views: '12,480', earned: '$58.20' },
   { code: 'bexa.link/pdf-guide', views: '8,912', earned: '$41.05' },
@@ -915,7 +895,6 @@ function Footer() {
 export default function LandingPage() {
   return (
     <div className="min-h-screen relative isolate overflow-x-clip">
-      <ScrollProgress />
       <Nav />
       <Hero />
       <Reveal from="fade"><StatsSection /></Reveal>
