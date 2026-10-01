@@ -194,14 +194,7 @@ function HeroShortenBar() {
         <div className="sh-row sh-blue"><i /><span>First payout</span><b>$5</b></div>
         <div className="sh-row sh-pink"><i /><span>Card required</span><b>No</b></div>
       </div>
-      <div className="sh-wave" aria-hidden="true">
-        <svg viewBox="0 0 380 70" preserveAspectRatio="none" className="absolute inset-0 w-full h-full">
-          <path d="M0 40 Q190 -6 380 40" fill="none" stroke="rgba(10,132,255,.25)" strokeWidth="2" />
-          <path d="M0 46 Q190 84 380 40" fill="none" stroke="rgba(255,45,143,.25)" strokeWidth="2" />
-        </svg>
-        <span className="sh-handle" style={{ top: 8, background: '#0a84ff' }} />
-        <span className="sh-handle" style={{ top: 38, background: '#ff2d8f' }} />
-      </div>
+      <div className="sh-wave" aria-hidden="true" />
       {result && (
         <div className="mt-3 flex items-center gap-2 text-sm text-[var(--ink-soft)]">
           <a href={result} target="_blank" rel="noopener noreferrer" className="underline">{result}</a>
