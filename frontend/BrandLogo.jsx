@@ -7,8 +7,8 @@ import { ICON_DATA_URI, WORDMARK_DATA_URI } from './brand-assets';
 
 const SIZES = {
   // icon size / wordmark height, in px
-  sm: { icon: 24, word: 15 },
-  md: { icon: 28, word: 18 },
+  sm: { icon: 28, word: 15 },
+  md: { icon: 36, word: 18 },
 };
 
 export default function BrandLogo({ size = 'md', href, className = '' }) {
